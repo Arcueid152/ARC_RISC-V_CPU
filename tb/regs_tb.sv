@@ -56,7 +56,7 @@ module regs_tb;
     endtask
 
     // 字符串寄存器用于测试名称
-    reg [639:0] test_name_str; // 80字符 * 8位
+    string  test_name_str; // 80字符 * 8位
 
     // 检查结果任务 (检查两个输出)
     task check_result;
