@@ -13,7 +13,7 @@ module rom #(
   // 初始化：从hex文件加载指令
   initial
   begin
-    $readmemh({"../../tests/", FILE}, rom_mem);
+    $readmemh(FILE, rom_mem);
   end
 
   always @(*)
