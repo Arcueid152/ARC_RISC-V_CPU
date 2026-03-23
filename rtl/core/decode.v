@@ -41,11 +41,11 @@ module decode (
   always @( *)
   begin
     // 默认值赋值（避免锁存器）
-    rs1_addr  =   'h0;
-    rs2_addr  =   'h0;
-    op1_out   =   'h0;
-    op2_out   =   'h0;
-    reg_addr  =   'h0;
+    rs1_addr  =   5'h0;
+    rs2_addr  =   5'h0;
+    op1_out   =   32'h0;
+    op2_out   =   32'h0;
+    reg_addr  =   5'h0;
 
     // 根据操作码进行指令译码
     case (opcode)
@@ -153,11 +153,11 @@ module decode (
       default:
       begin
         // 未知指令，保持默认值（全0）
-        rs1_addr = 'h0;
-        rs2_addr = 'h0;
-        op1_out  = 'h0;
-        op2_out  = 'h0;
-        reg_addr = 'h0;
+        rs1_addr  =   5'h0;
+        rs2_addr  =   5'h0;
+        op1_out   =   32'h0;
+        op2_out   =   32'h0;
+        reg_addr  =   5'h0;
       end
     endcase
   end

@@ -8,7 +8,7 @@ module pc_cnt (
   );
   always @(posedge clk or negedge rstn)
   begin
-    if(~rstn)
+    if(!rstn)
       pc_pointer <= 32'h0;//复位置零
     else if (jump_en)
       pc_pointer <= jump_addr;//跳转地址

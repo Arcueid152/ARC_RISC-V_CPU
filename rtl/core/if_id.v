@@ -7,14 +7,14 @@ module if_id (
     output  reg  [31:0] instr_out
   );
   always @(posedge clk or negedge rstn)
-    if(~rstn)
+    if(!rstn)
       instr_addr_out <= 32'h0;
     else
       instr_addr_out <= instr_addr_in;
 
   always @(posedge clk or negedge rstn)
 
-    if(~rstn)
+    if(!rstn)
       instr_out <= 32'h0;
     else
       instr_out <= instr_in;
