@@ -24,7 +24,7 @@ module regs (
     else if (rs1_addr == 5'h0)
       rs1_data = 32'h0;
     else if ((rs1_addr == reg_addr) && reg_en)
-      rs1_data = regs[reg_data];
+      rs1_data = regs[reg_addr];
     else
       rs1_data = regs[rs1_addr];
   end
@@ -36,7 +36,7 @@ module regs (
     else if (rs2_addr == 5'h0)
       rs2_data = 32'h0;
     else if ((rs2_addr == reg_addr) && reg_en)
-      rs2_data = regs[reg_data];
+      rs2_data = regs[reg_addr];
     else
       rs2_data = regs[rs2_addr];
   end
