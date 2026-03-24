@@ -93,7 +93,7 @@ module ex (
               reg_addr = rd;
               reg_data = op1 >> op2;
             end
-            if (funct7 == 'h20)
+            else if (funct7 == 'h20)
             begin
               reg_en = 1'b1;
               reg_addr = rd;
