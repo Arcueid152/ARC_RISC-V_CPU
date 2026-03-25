@@ -8,7 +8,11 @@ module ex (
 
     output  reg reg_en,
     output  reg [4:0] reg_addr,
-    output  reg [31:0] reg_data
+    output  reg [31:0] reg_data,
+    //跳转传回pc_cnt
+    output reg jump_en,
+    output reg jump_hold,
+    output reg [31:0]jump_addr
   );
 
   // 指令字段定义
@@ -39,6 +43,13 @@ module ex (
 
   always @( *)
   begin
+    //初始置零
+    reg_en = 1'b0;
+    reg_addr = 5'h0;
+    reg_data = 32'b0;
+    jump_en = 1'b0;
+    jump_addr = 'h0;
+    jump_hold = 1'b0;
     case (opcode)
       `INST_TYPE_I:
       begin
@@ -48,42 +59,63 @@ module ex (
             reg_en = 1'b1;
             reg_addr = rd;
             reg_data = op1 + op2;
+            jump_en = 1'b0;
+            jump_addr = 'h0;
+            jump_hold = 1'b0;
           end
           `INST_SLTI:
           begin
             reg_en = 1'b1;
             reg_addr = rd;
             reg_data = (op1 < op2) ? 1:0;
+            jump_en = 1'b0;
+            jump_addr = 'h0;
+            jump_hold = 1'b0;
           end
           `INST_SLTIU:
           begin
             reg_en = 1'b1;
             reg_addr = rd;
             reg_data = (op1 < op2) ? 1:0;
+            jump_en = 1'b0;
+            jump_addr = 'h0;
+            jump_hold = 1'b0;
           end
           `INST_XORI:
           begin
             reg_en = 1'b1;
             reg_addr = rd;
             reg_data = op1 ^ op2;
+            jump_en = 1'b0;
+            jump_addr = 'h0;
+            jump_hold = 1'b0;
           end
           `INST_ORI:
           begin
             reg_en = 1'b1;
             reg_addr = rd;
             reg_data = op1 | op2;
+            jump_en = 1'b0;
+            jump_addr = 'h0;
+            jump_hold = 1'b0;
           end
           `INST_ANDI:
           begin
             reg_en = 1'b1;
             reg_addr = rd;
             reg_data = op1 & op2;
+            jump_en = 1'b0;
+            jump_addr = 'h0;
+            jump_hold = 1'b0;
           end
           `INST_SLLI:
           begin
             reg_en = 1'b1;
             reg_addr = rd;
             reg_data = op1 << op2;
+            jump_en = 1'b0;
+            jump_addr = 'h0;
+            jump_hold = 1'b0;
           end
           `INST_SRI:
           begin
@@ -92,18 +124,27 @@ module ex (
               reg_en = 1'b1;
               reg_addr = rd;
               reg_data = op1 >> op2;
+              jump_en = 1'b0;
+              jump_addr = 'h0;
+              jump_hold = 1'b0;
             end
             else if (funct7 == 'h20)
             begin
               reg_en = 1'b1;
               reg_addr = rd;
               reg_data = op1 >>> op2;
+              jump_en = 1'b0;
+              jump_addr = 'h0;
+              jump_hold = 1'b0;
             end
             else
             begin
               reg_en = 1'b0;
               reg_addr = 5'h0;
               reg_data = 32'b0;
+              jump_en = 1'b0;
+              jump_addr = 'h0;
+              jump_hold = 1'b0;
             end
           end
           default:
@@ -111,6 +152,9 @@ module ex (
             reg_en = 1'b0;
             reg_addr = 5'h0;
             reg_data = 32'b0;
+            jump_en = 1'b0;
+            jump_addr = 'h0;
+            jump_hold = 1'b0;
           end
         endcase
       end
@@ -173,33 +217,66 @@ module ex (
         case (funct3)
           `INST_BEQ:
           begin
-
+            reg_en = 1'b0;
+            reg_addr = 5'h0;
+            reg_data = 32'b0;
+            jump_en = (op1 == op2);
+            jump_addr = (op1 == op2) ? (instr_addr_in + imm_b):'h0 ;
+            jump_hold = (op1 == op2);
           end
           `INST_BNE:
           begin
-
+            reg_en = 1'b0;
+            reg_addr = 5'h0;
+            reg_data = 32'b0;
+            jump_en = (op1 != op2);
+            jump_addr = (op1 != op2) ? (instr_addr_in + imm_b):'h0 ;
+            jump_hold = (op1 != op2);
           end
           `INST_BLT:
           begin
-
+            reg_en = 1'b0;
+            reg_addr = 5'h0;
+            reg_data = 32'b0;
+            jump_en = (op1 < op2);
+            jump_addr = (op1 < op2) ? (instr_addr_in + imm_b):'h0 ;
+            jump_hold = (op1 < op2);
           end
           `INST_BGE:
           begin
-
+            reg_en = 1'b0;
+            reg_addr = 5'h0;
+            reg_data = 32'b0;
+            jump_en = (op1 >= op2);
+            jump_addr = (op1 >= op2) ? (instr_addr_in + imm_b):'h0 ;
+            jump_hold = (op1 >= op2);
           end
           `INST_BLTU:
           begin
-
+            reg_en = 1'b0;
+            reg_addr = 5'h0;
+            reg_data = 32'b0;
+            jump_en = (op1 < op2);
+            jump_addr = (op1 < op2) ? (instr_addr_in + imm_b):'h0 ;
+            jump_hold = (op1 < op2);
           end
           `INST_BGEU:
           begin
-
+            reg_en = 1'b0;
+            reg_addr = 5'h0;
+            reg_data = 32'b0;
+            jump_en = (op1 <= op2);
+            jump_addr = (op1 <= op2) ? (instr_addr_in + imm_b):'h0 ;
+            jump_hold = (op1 <= op2);
           end
           default:
           begin
             reg_en = 1'b0;
             reg_addr = 5'h0;
             reg_data = 32'b0;
+            jump_en = 1'b0;
+            jump_addr = 'h0;
+            jump_hold = 1'b0;
           end
         endcase
       end
@@ -213,18 +290,27 @@ module ex (
               reg_en = 1'b1;
               reg_addr = rd;
               reg_data = op1 + op2;
+              jump_en = 1'b0;
+              jump_addr = 'h0;
+              jump_hold = 1'b0;
             end
             else if(funct7 == 'h20)
             begin
               reg_en = 1'b1;
               reg_addr = rd;
               reg_data = op1 - op2;
+              jump_en = 1'b0;
+              jump_addr = 'h0;
+              jump_hold = 1'b0;
             end
             else
             begin
               reg_en = 1'b0;
               reg_addr = 5'h0;
               reg_data = 32'b0;
+              jump_en = 1'b0;
+              jump_addr = 'h0;
+              jump_hold = 1'b0;
             end
           end
           `INST_SLL:
@@ -232,24 +318,36 @@ module ex (
             reg_en = 1'b1;
             reg_addr = rd;
             reg_data = op1 << op2;
+            jump_en = 1'b0;
+            jump_addr = 'h0;
+            jump_hold = 1'b0;
           end
           `INST_SLT:
           begin
             reg_en = 1'b1;
             reg_addr = rd;
             reg_data = (op1 < op2) ? 1:0;
+            jump_en = 1'b0;
+            jump_addr = 'h0;
+            jump_hold = 1'b0;
           end
           `INST_SLTU:
           begin
             reg_en = 1'b1;
             reg_addr = rd;
             reg_data = (op1 > op2) ? 1:0;
+            jump_en = 1'b0;
+            jump_addr = 'h0;
+            jump_hold = 1'b0;
           end
           `INST_XOR:
           begin
             reg_en = 1'b1;
             reg_addr = rd;
             reg_data = op1 ^ op2;
+            jump_en = 1'b0;
+            jump_addr = 'h0;
+            jump_hold = 1'b0;
           end
           `INST_SR:
           begin
@@ -258,18 +356,27 @@ module ex (
               reg_en = 1'b1;
               reg_addr = rd;
               reg_data = op1 >> op2;
+              jump_en = 1'b0;
+              jump_addr = 'h0;
+              jump_hold = 1'b0;
             end
             else if(funct7 == 'h20)
             begin
               reg_en = 1'b1;
               reg_addr = rd;
               reg_data = op1 >>> op2;
+              jump_en = 1'b0;
+              jump_addr = 'h0;
+              jump_hold = 1'b0;
             end
             else
             begin
               reg_en = 1'b0;
               reg_addr = 5'h0;
               reg_data = 32'b0;
+              jump_en = 1'b0;
+              jump_addr = 'h0;
+              jump_hold = 1'b0;
             end
           end
           `INST_OR:
@@ -277,42 +384,74 @@ module ex (
             reg_en = 1'b1;
             reg_addr = rd;
             reg_data = op1 | op2;
+            jump_en = 1'b0;
+            jump_addr = 'h0;
+            jump_hold = 1'b0;
           end
           `INST_AND:
           begin
             reg_en = 1'b1;
             reg_addr = rd;
             reg_data = op1 & op2;
+            jump_en = 1'b0;
+            jump_addr = 'h0;
+            jump_hold = 1'b0;
           end
           default:
           begin
             reg_en = 1'b0;
             reg_addr = 5'h0;
             reg_data = 32'b0;
+            jump_en = 1'b0;
+            jump_addr = 'h0;
+            jump_hold = 1'b0;
           end
         endcase
       end
       `INST_JAL:
       begin
-
+        reg_en = 1'b1;
+        reg_addr = rd;
+        reg_data = instr_addr_in + 32'h4;
+        jump_en = 1'b1;
+        jump_addr = instr_addr_in + op2;
+        jump_hold = 1'b1;
       end
       `INST_JALR:
       begin
-
+        reg_en = 1'b1;
+        reg_addr = rd;
+        reg_data = instr_addr_in + 32'h4;
+        jump_en = 1'b1;
+        jump_addr = op1 + op2;
+        jump_hold = 1'b1;
       end
       `INST_LUI:
       begin
-
+        reg_en = 1'b1;
+        reg_addr = rd;
+        reg_data = op2;
+        jump_en = 1'b0;
+        jump_addr = 'h0;
+        jump_hold = 1'b0;
       end
       `INST_AUIPC:
       begin
-
+        reg_en = 1'b1;
+        reg_addr = rd;
+        reg_data = instr_addr_in + op2;
+        jump_en = 1'b0;
+        jump_addr = 'h0;
+        jump_hold = 1'b0;
       end
       default:
       begin
         reg_en = 1'b0;
         reg_addr = 5'h0;
         reg_data = 32'b0;
+        jump_en = 1'b0;
+        jump_addr = 'h0;
+        jump_hold = 1'b0;
       end
     endcase
   end
