@@ -23,6 +23,15 @@
 `define INST_SH     3'b001
 `define INST_SW     3'b010
 
+// B type inst
+`define INST_TYPE_B 7'b1100011
+`define INST_BEQ    3'b000
+`define INST_BNE    3'b001
+`define INST_BLT    3'b100
+`define INST_BGE    3'b101
+`define INST_BLTU   3'b110
+`define INST_BGEU   3'b111
+
 // R and M type inst
 `define INST_TYPE_R_M 7'b0110011
 // R type inst
@@ -34,6 +43,7 @@
 `define INST_SR     3'b101
 `define INST_OR     3'b110
 `define INST_AND    3'b111
+
 // M type inst
 `define INST_MUL    3'b000
 `define INST_MULH   3'b001
@@ -58,15 +68,6 @@
 `define INST_FENCE  7'b0001111
 `define INST_ECALL  32'h73
 `define INST_EBREAK 32'h00100073
-
-// J type inst
-`define INST_TYPE_B 7'b1100011
-`define INST_BEQ    3'b000
-`define INST_BNE    3'b001
-`define INST_BLT    3'b100
-`define INST_BGE    3'b101
-`define INST_BLTU   3'b110
-`define INST_BGEU   3'b111
 
 // CSR inst
 `define INST_CSR    7'b1110011

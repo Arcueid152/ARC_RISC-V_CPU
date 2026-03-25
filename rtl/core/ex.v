@@ -106,9 +106,6 @@ module ex (
               reg_data = 32'b0;
             end
           end
-
-
-
           default:
           begin
             reg_en = 1'b0;
@@ -117,10 +114,200 @@ module ex (
           end
         endcase
       end
+      `INST_TYPE_L:
+      begin
+        case(funct3)
+          `INST_LB:
+          begin
 
+          end
+          `INST_LH:
+          begin
 
+          end
+          `INST_LW:
+          begin
 
+          end
+          `INST_LBU:
+          begin
 
+          end
+          `INST_LHU:
+          begin
+
+          end
+          default:
+          begin
+            reg_en = 1'b0;
+            reg_addr = 5'h0;
+            reg_data = 32'b0;
+          end
+        endcase
+      end
+      `INST_TYPE_S:
+      begin
+        case (funct3)
+          `INST_SB:
+          begin
+
+          end
+          `INST_SH:
+          begin
+
+          end
+          `INST_SW:
+          begin
+
+          end
+          default:
+          begin
+            reg_en = 1'b0;
+            reg_addr = 5'h0;
+            reg_data = 32'b0;
+          end
+        endcase
+      end
+      `INST_TYPE_B:
+      begin
+        case (funct3)
+          `INST_BEQ:
+          begin
+
+          end
+          `INST_BNE:
+          begin
+
+          end
+          `INST_BLT:
+          begin
+
+          end
+          `INST_BGE:
+          begin
+
+          end
+          `INST_BLTU:
+          begin
+
+          end
+          `INST_BGEU:
+          begin
+
+          end
+          default:
+          begin
+            reg_en = 1'b0;
+            reg_addr = 5'h0;
+            reg_data = 32'b0;
+          end
+        endcase
+      end
+      `INST_TYPE_R_M:
+      begin
+        case (funct3)
+          `INST_ADD_SUB:
+          begin
+            if(funct7 == 'h0)
+            begin
+              reg_en = 1'b1;
+              reg_addr = rd;
+              reg_data = op1 + op2;
+            end
+            else if(funct7 == 'h20)
+            begin
+              reg_en = 1'b1;
+              reg_addr = rd;
+              reg_data = op1 - op2;
+            end
+            else
+            begin
+              reg_en = 1'b0;
+              reg_addr = 5'h0;
+              reg_data = 32'b0;
+            end
+          end
+          `INST_SLL:
+          begin
+            reg_en = 1'b1;
+            reg_addr = rd;
+            reg_data = op1 << op2;
+          end
+          `INST_SLT:
+          begin
+            reg_en = 1'b1;
+            reg_addr = rd;
+            reg_data = (op1 < op2) ? 1:0;
+          end
+          `INST_SLTU:
+          begin
+            reg_en = 1'b1;
+            reg_addr = rd;
+            reg_data = (op1 > op2) ? 1:0;
+          end
+          `INST_XOR:
+          begin
+            reg_en = 1'b1;
+            reg_addr = rd;
+            reg_data = op1 ^ op2;
+          end
+          `INST_SR:
+          begin
+            if (funct7 == 'h0)
+            begin
+              reg_en = 1'b1;
+              reg_addr = rd;
+              reg_data = op1 >> op2;
+            end
+            else if(funct7 == 'h20)
+            begin
+              reg_en = 1'b1;
+              reg_addr = rd;
+              reg_data = op1 >>> op2;
+            end
+            else
+            begin
+              reg_en = 1'b0;
+              reg_addr = 5'h0;
+              reg_data = 32'b0;
+            end
+          end
+          `INST_OR:
+          begin
+            reg_en = 1'b1;
+            reg_addr = rd;
+            reg_data = op1 | op2;
+          end
+          `INST_AND:
+          begin
+            reg_en = 1'b1;
+            reg_addr = rd;
+            reg_data = op1 & op2;
+          end
+          default:
+          begin
+            reg_en = 1'b0;
+            reg_addr = 5'h0;
+            reg_data = 32'b0;
+          end
+        endcase
+      end
+      `INST_JAL:
+      begin
+
+      end
+      `INST_JALR:
+      begin
+
+      end
+      `INST_LUI:
+      begin
+
+      end
+      `INST_AUIPC:
+      begin
+
+      end
       default:
       begin
         reg_en = 1'b0;
