@@ -1,6 +1,9 @@
+`include "defines.v"
 module id_ex (
     input wire clk,
     input  wire rstn,
+
+    input  wire instr_hold,
 
     input wire [31:0] instr_in,
     input wire [31:0] instr_addr_in,
@@ -26,7 +29,17 @@ module id_ex (
   begin
     if(!rstn)
     begin
-      instr_out         <= 32'h0;
+      instr_out         <= `INST_NOP;
+      instr_addr_out    <= 32'h0;
+      op1_out           <= 32'h0;
+      op2_out           <= 32'h0;
+      funct3_out        <= 3'h0;
+      funct7_out        <= 7'h0;
+      opcode_out        <= 7'h0;
+    end
+    else if(instr_hold)
+    begin
+      instr_out         <= `INST_NOP;
       instr_addr_out    <= 32'h0;
       op1_out           <= 32'h0;
       op2_out           <= 32'h0;
