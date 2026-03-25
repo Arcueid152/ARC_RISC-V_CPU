@@ -42,7 +42,7 @@ module regs (
     else if (rs1_addr == 5'h0)
       rs1_data = 32'h0;
     else if ((rs1_addr == reg_addr) && reg_en)
-      rs1_data = regs[reg_addr];//解决时序问题，若当前需要该指令，直接写入，下同
+      rs1_data = reg_data;//解决时序问题，若当前需要该指令，直接写入，下同
     else
       rs1_data = regs[rs1_addr];
   end

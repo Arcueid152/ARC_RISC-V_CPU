@@ -9,22 +9,23 @@ module decode (
     output reg      [4:0]   rs2_addr,   // 源寄存器2的地址
     output reg      [4:0]   reg_addr,   // 目标寄存器地址
     output reg      [31:0]  op1_out,    // 操作数1输出
-    output reg      [31:0]  op2_out     // 操作数2输出
+    output reg      [31:0]  op2_out,    // 操作数2输出
+    output wire     [2:0]   funct3,     // 功能码3位
+    output wire     [6:0]   funct7,      // 功能码7位
+    output wire     [6:0]   opcode
   );
 
   // 指令字段定义
-  wire [6:0] opcode;      // 操作码
   wire [4:0] rd;          // 目标寄存器
-  wire [2:0] funct3;      // 功能码3位
   wire [4:0] rs1;         // 源寄存器1
-  wire [4:0] rs2;         // 源寄存器2
-  wire [6:0] funct7;      // 功能码7位
+  wire [4:0] rs2;         // 源寄存器2   
   wire [11:0] imm_i;      // I型立即数
   wire [11:0] imm_s;      // S型立即数
   wire [12:0] imm_b;      // B型立即数
   wire [19:0] imm_u;      // U型立即数
   wire [20:0] imm_j;      // J型立即数
 
+  assign opcode   = instr_in[6:0];
   assign rd       = instr_in[11:7];
   assign funct3   = instr_in[14:12];
   assign rs1      = instr_in[19:15];
@@ -139,14 +140,14 @@ module decode (
         reg_addr = 5'h0;
       end
 
-      `INST_CSR:
-      begin // CSR指令（控制状态寄存器操作）
-        rs1_addr = rs1;                         // 源寄存器（可能为x0）
-        rs2_addr = 5'h0;
-        op1_out  = rs1_data;                    // 源寄存器值
-        op2_out  = {{20{imm_i[11]}}, imm_i};    // CSR立即数（符号扩展或零扩展，具体由funct3决定）
-        reg_addr = rd;                          // 目标寄存器
-      end
+      // `INST_CSR:
+      // begin // CSR指令（控制状态寄存器操作）
+      //   rs1_addr = rs1;                         // 源寄存器（可能为x0）
+      //   rs2_addr = 5'h0;
+      //   op1_out  = rs1_data;                    // 源寄存器值
+      //   op2_out  = {{20{imm_i[11]}}, imm_i};    // CSR立即数（符号扩展或零扩展，具体由funct3决定）
+      //   reg_addr = rd;                          // 目标寄存器
+      // end
 
       default:
       begin
