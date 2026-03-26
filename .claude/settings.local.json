@@ -2,7 +2,8 @@
   "permissions": {
     "allow": [
       "Bash(vlog -work work pc_cnt.v)",
-      "Bash(vlog -work work rtl/core/defines.v)"
+      "Bash(vlog -work work rtl/core/defines.v)",
+      "Bash(iverilog -v)"
     ]
   }
 }
