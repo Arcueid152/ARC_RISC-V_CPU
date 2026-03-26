@@ -33,7 +33,6 @@ module decode (
   assign funct7   = instr_in[31:25];
   assign imm_i    = instr_in[31:20];                      // I型立即数直接取高位
   assign imm_s    = {instr_in[31:25], instr_in[11:7]};   // S型立即数拼接
-  assign imm_b    = {instr_in[31], instr_in[7], instr_in[30:25], instr_in[11:8], 1'b0}; // B型立即数拼接，末位补0
   assign imm_u    = instr_in[31:12];                      // U型立即数取高20位
   assign imm_j    = {instr_in[31], instr_in[19:12], instr_in[20], instr_in[30:21], 1'b0}; // J型立即数拼接，末位补0
 
