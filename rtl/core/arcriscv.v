@@ -60,12 +60,30 @@ module arcriscv (
   wire [2:0]    id2ex_funct3_out;     // 功能码3位
   wire [6:0]    id2ex_funct7_out;      // 功能码7位
   wire [6:0]    id2ex_opcode_out;
+
+  //ex
+  wire [31:0] ex_instr_in;
+  wire [31:0] ex_instr_addr_in;
+
+  wire [31:0] ex_op1;
+  wire [31:0] ex_op2;
+  wire [2:0] ex_funct3; 
+  wire [6:0] ex_funct7; 
+  wire [6:0] ex_opcode; 
+
+  wire ex_reg_en;
+  wire [4:0] ex_reg_addr;
+  wire [31:0] ex_reg_data;
+    //跳转传回pc_cnt
+  wire ex_jump_en;
+  wire ex_jump_hold;
+  wire [31:0]ex_jump_addr;
   /*=================================*/
 
   //pc_cnt输入
-  assign pc_jump_en = 1'b0;
-  assign pc_jump_hold = 1'b0;
-  assign pc_jump_addr = 32'h0;
+  assign pc_jump_en = ex_jump_en;
+  assign pc_jump_hold = ex_jump_hold;
+  assign pc_jump_addr = ex_jump_addr;
 
   //rom输入
   assign rom_instr_addr = pc_pointer;
@@ -73,7 +91,7 @@ module arcriscv (
   //if2id输入
   assign if2id_instr_addr_in = pc_pointer;
   assign if2id_instr_in = rom_instr_out;
-  assign if2id_instr_hold = 1'b0;
+  assign if2id_instr_hold = ex_jump_hold;
 
   //decode输入
   assign   decode_instr_in = if2id_instr_out;  // 输入的指令
@@ -81,14 +99,14 @@ module arcriscv (
   assign   decode_rs2_data = regs_reg_rs2_data;   // 源寄存器2的数据
 
   //reg输入
-  assign regs_reg_en = 'b0;
-  assign regs_reg_addr = 'b0;
-  assign regs_reg_data = 32'h0;
+  assign regs_reg_en = ex_reg_en;
+  assign regs_reg_addr = ex_reg_addr;
+  assign regs_reg_data = ex_reg_data;
   assign regs_reg_rs1_addr = decode_rs1_addr;
   assign regs_reg_rs2_addr = decode_rs2_addr;
 
   //id2ex
-  assign  id2ex_instr_hold   =       1'b0;
+  assign  id2ex_instr_hold   =       ex_jump_hold;
   assign  id2ex_instr_in     =       if2id_instr_out;
   assign  id2ex_instr_addr_in=       if2id_instr_addr_out;
   assign  id2ex_op1_in       =       decode_op1_out;
@@ -96,6 +114,16 @@ module arcriscv (
   assign  id2ex_funct3_in    =       decode_funct3;
   assign  id2ex_funct7_in    =       decode_funct7;
   assign  id2ex_opcode_in    =       decode_opcode;
+
+  //ex
+  assign  ex_instr_in = id2ex_instr_out;
+  assign  ex_instr_addr_in = id2ex_instr_addr_out;
+
+  assign  ex_op1 = id2ex_op1_out;
+  assign  ex_op2 = id2ex_op2_out;
+  assign ex_funct3 = id2ex_funct3_out; 
+  assign ex_funct7 = id2ex_funct7_out; 
+  assign ex_opcode = id2ex_opcode_out; 
 
 
   pc_cnt  pc_cnt_inst (
@@ -166,6 +194,22 @@ module arcriscv (
            .funct7_out(id2ex_funct7_out),
            .opcode_out(id2ex_opcode_out)
          );
+
+  ex  ex_inst (
+        .instr_in(ex_instr_in),
+        .instr_addr_in(ex_instr_addr_in),
+        .op1(ex_op1),
+        .op2(ex_op2),
+        .funct3(ex_funct3),
+        .funct7(ex_funct7),
+        .opcode(ex_opcode),
+        .reg_en(ex_reg_en),
+        .reg_addr(ex_reg_addr),
+        .reg_data(ex_reg_data),
+        .jump_en(ex_jump_en),
+        .jump_hold(ex_jump_hold),
+        .jump_addr(ex_jump_addr)
+      );
 
 
 endmodule

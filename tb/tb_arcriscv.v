@@ -22,7 +22,7 @@ initial begin
     clk         = 1'b0;
     rstn        = 1'b0;
     // 复位阶段
-    #1000;
+    #100;
     rstn        = 1'b1;
 end
 
