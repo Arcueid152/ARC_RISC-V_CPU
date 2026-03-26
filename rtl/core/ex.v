@@ -25,9 +25,6 @@ module ex (
   wire [12:0] imm_b;      // B型立即数
   wire [19:0] imm_u;      // U型立即数
   wire [20:0] imm_j;      // J型立即数
-  wire [6:0] opcode_int;   // 内部操作码
-  wire [2:0] funct3_int;   // 内部功能码3位
-  wire [6:0] funct7_int;   // 内部功能码7位
 
   // 从指令中提取各字段
   assign rd       = instr_in[11:7];
@@ -36,9 +33,6 @@ module ex (
   assign imm_b    = {instr_in[31], instr_in[7], instr_in[30:25], instr_in[11:8], 1'b0}; // B型立即数拼接，末位补0
   assign imm_u    = instr_in[31:12];                      // U型立即数取高20位
   assign imm_j    = {instr_in[31], instr_in[19:12], instr_in[20], instr_in[30:21], 1'b0}; // J型立即数拼接，末位补0
-  assign opcode_int = instr_in[6:0];
-  assign funct3_int = instr_in[14:12];
-  assign funct7_int = instr_in[31:25];
 
   always @( *)
   begin
@@ -49,10 +43,10 @@ module ex (
     jump_en = 1'b0;
     jump_addr = 'h0;
     jump_hold = 1'b0;
-    case (opcode_int)
+    case (opcode)
       `INST_TYPE_I:
       begin
-        case (funct3_int)
+        case (funct3)
           `INST_ADDI:
           begin
             reg_en = 1'b1;
@@ -66,7 +60,7 @@ module ex (
           begin
             reg_en = 1'b1;
             reg_addr = rd;
-            reg_data = (op1 < op2) ? 1:0;
+            reg_data = ($signed(op1) < $signed(op2)) ? 1:0;
             jump_en = 1'b0;
             jump_addr = 'h0;
             jump_hold = 1'b0;
@@ -118,7 +112,7 @@ module ex (
           end
           `INST_SRI:
           begin
-            if (funct7_int == 'h0)
+            if (funct7 == 'h0)
             begin
               reg_en = 1'b1;
               reg_addr = rd;
@@ -127,7 +121,7 @@ module ex (
               jump_addr = 'h0;
               jump_hold = 1'b0;
             end
-            else if (funct7_int == 'h20)
+            else if (funct7 == 'h20)
             begin
               reg_en = 1'b1;
               reg_addr = rd;
@@ -159,7 +153,7 @@ module ex (
       end
       `INST_TYPE_L:
       begin
-        case(funct3_int)
+        case(funct3)
           `INST_LB:
           begin
 
@@ -190,7 +184,7 @@ module ex (
       end
       `INST_TYPE_S:
       begin
-        case (funct3_int)
+        case (funct3)
           `INST_SB:
           begin
 
@@ -213,7 +207,7 @@ module ex (
       end
       `INST_TYPE_B:
       begin
-        case (funct3_int)
+        case (funct3)
           `INST_BEQ:
           begin
             reg_en = 1'b0;
@@ -281,10 +275,10 @@ module ex (
       end
       `INST_TYPE_R_M:
       begin
-        case (funct3_int)
+        case (funct3)
           `INST_ADD_SUB:
           begin
-            if(funct7_int == 'h0)
+            if(funct7 == 'h0)
             begin
               reg_en = 1'b1;
               reg_addr = rd;
@@ -293,7 +287,7 @@ module ex (
               jump_addr = 'h0;
               jump_hold = 1'b0;
             end
-            else if(funct7_int == 'h20)
+            else if(funct7 == 'h20)
             begin
               reg_en = 1'b1;
               reg_addr = rd;
@@ -350,7 +344,7 @@ module ex (
           end
           `INST_SR:
           begin
-            if (funct7_int == 'h0)
+            if (funct7 == 'h0)
             begin
               reg_en = 1'b1;
               reg_addr = rd;
@@ -359,7 +353,7 @@ module ex (
               jump_addr = 'h0;
               jump_hold = 1'b0;
             end
-            else if(funct7_int == 'h20)
+            else if(funct7 == 'h20)
             begin
               reg_en = 1'b1;
               reg_addr = rd;
@@ -409,36 +403,36 @@ module ex (
       end
       `INST_JAL:
       begin
-        reg_en = 1'b0;
-        reg_addr = 5'h0;
-        reg_data = 32'b0;
+        reg_en = 1'b1;
+        reg_addr = rd;
+        reg_data = instr_addr_in + 32'h4;
         jump_en = 1'b1;
         jump_addr = instr_addr_in + op2;
         jump_hold = 1'b1;
       end
       `INST_JALR:
       begin
-        reg_en = 1'b0;
-        reg_addr = 5'h0;
-        reg_data = 32'b0;
+        reg_en = 1'b1;
+        reg_addr = rd;
+        reg_data = instr_addr_in + 32'h4;
         jump_en = 1'b1;
         jump_addr = op1 + op2;
         jump_hold = 1'b1;
       end
       `INST_LUI:
       begin
-        reg_en = 1'b0;
-        reg_addr = 5'h0;
-        reg_data = 32'b0;
+        reg_en = 1'b1;
+        reg_addr = rd;
+        reg_data = op2;
         jump_en = 1'b0;
         jump_addr = 'h0;
         jump_hold = 1'b0;
       end
       `INST_AUIPC:
       begin
-        reg_en = 1'b0;
-        reg_addr = 5'h0;
-        reg_data = 32'b0;
+        reg_en = 1'b1;
+        reg_addr = rd;
+        reg_data = instr_addr_in + op2;
         jump_en = 1'b0;
         jump_addr = 'h0;
         jump_hold = 1'b0;
