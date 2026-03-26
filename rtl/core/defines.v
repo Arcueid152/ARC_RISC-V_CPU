@@ -69,4 +69,6 @@
 `define INST_ECALL  32'h73
 `define INST_EBREAK 32'h00100073
 
+`define FILE        "C:/Users/13227/Documents/2026_JXS/ARC_RISC-V_CPU/tests/rv32ui-p-addi.txt"
+
 
