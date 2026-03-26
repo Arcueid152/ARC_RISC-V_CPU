@@ -237,13 +237,13 @@ module ex (
           begin
             reg_en = 1'b1;
             reg_addr = rd;
-            reg_data = (op1 < op2) ? 1:0;
+            reg_data = ($signed(op1) < $signed(op2)) ? 1:0;
           end
           `INST_SLTU:
           begin
             reg_en = 1'b1;
             reg_addr = rd;
-            reg_data = (op1 > op2) ? 1:0;
+            reg_data = (op1 < op2) ? 1:0;
           end
           `INST_XOR:
           begin
