@@ -60,7 +60,7 @@
 
 `define INST_LUI    7'b0110111
 `define INST_AUIPC  7'b0010111
-`define INST_NOP    32'h00000001
+`define INST_NOP    32'h00000013
 `define INST_NOP_OP 7'b0000001
 `define INST_MRET   32'h30200073
 `define INST_RET    32'h00008067
@@ -69,38 +69,4 @@
 `define INST_ECALL  32'h73
 `define INST_EBREAK 32'h00100073
 
-// CSR inst
-`define INST_CSR    7'b1110011
-`define INST_CSRRW  3'b001
-`define INST_CSRRS  3'b010
-`define INST_CSRRC  3'b011
-`define INST_CSRRWI 3'b101
-`define INST_CSRRSI 3'b110
-`define INST_CSRRCI 3'b111
 
-// CSR reg addr
-`define CSR_CYCLE   12'hc00
-`define CSR_CYCLEH  12'hc80
-`define CSR_MTVEC   12'h305
-`define CSR_MCAUSE  12'h342
-`define CSR_MEPC    12'h341
-`define CSR_MIE     12'h304
-`define CSR_MSTATUS 12'h300
-`define CSR_MSCRATCH 12'h340
-
-`define RomNum 4096  // rom depth(how many words)
-
-`define MemNum 4096  // memory depth(how many words)
-`define MemBus 31:0
-`define MemAddrBus 31:0
-
-`define InstBus 31:0
-`define InstAddrBus 31:0
-
-// common regs
-`define RegAddrBus 4:0
-`define RegBus 31:0
-`define DoubleRegBus 63:0
-`define RegWidth 32
-`define RegNum 32        // reg num
-`define RegNumLog2 5
