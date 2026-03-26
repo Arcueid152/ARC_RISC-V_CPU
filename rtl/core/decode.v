@@ -21,7 +21,6 @@ module decode (
   wire [4:0] rs2;         // 源寄存器2   
   wire [11:0] imm_i;      // I型立即数
   wire [11:0] imm_s;      // S型立即数
-  wire [12:0] imm_b;      // B型立即数
   wire [19:0] imm_u;      // U型立即数
   wire [20:0] imm_j;      // J型立即数
 

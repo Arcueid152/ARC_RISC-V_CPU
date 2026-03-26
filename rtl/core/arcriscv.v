@@ -5,113 +5,167 @@ module arcriscv (
     input  wire rstn
   );
 
-  //pc_cnt输出
-  wire [31:0] pc_pointer;
-  wire jump_en = 1'b0;
-  wire jump_hold = 1'b0;
-  wire [31:0] jump_addr = 32'h0;
+  //pc_cnt
+  wire  [31:0]  pc_pointer;
+  wire          pc_jump_en;
+  wire          pc_jump_hold;
+  wire  [31:0]  pc_jump_addr;
 
-  //rom输出
-  wire [31:0] instr_rom_out;
-  wire [31:0] instr_addr;
+  //rom
+  wire  [31:0]  rom_instr_out;
+  wire  [31:0]  rom_instr_addr;
 
-  //if2id输出
-  wire  [31:0] instr_addr_if2id_out;
-  wire  [31:0] instr_if2id_out;
-  wire [31:0] instr_addr_if2id_in ;
-  wire [31:0] instr_if2id_in ;
-  wire instr_if2id_hold;
+  //if2id
+  wire  [31:0]  if2id_instr_addr_out;
+  wire  [31:0]  if2id_instr_out;
+  wire  [31:0]  if2id_instr_addr_in ;
+  wire  [31:0]  if2id_instr_in ;
+  wire          if2id_instr_hold;
 
-  // //decode译码输出
-  // wire [4:0]   decode_rs1_addr;   // 源寄存器1的地址
-  // wire [4:0]   decode_rs2_addr;   // 源寄存器2的地址
-  // wire [4:0]   decode_reg_addr;   // 目标寄存器地址
-  // wire [31:0]  decode_op1_out;    // 操作数1输出
-  // wire [31:0]  decode_op2_out;    // 操作数2输出
-  // wire [2:0]   decode_funct3;     // 功能码3位
-  // wire [6:0]   decode_funct7;      // 功能码7位
-  // wire [6:0]   decode_opcode;
+  //decode
+  wire  [31:0]  decode_instr_in;   // 输入的指令
+  wire  [31:0]  decode_rs1_data;   // 源寄存器1的数据
+  wire  [31:0]  decode_rs2_data;   // 源寄存器2的数据
+  wire  [4:0]   decode_rs1_addr;   // 源寄存器1的地址
+  wire  [4:0]   decode_rs2_addr;   // 源寄存器2的地址
+  wire  [4:0]   decode_reg_addr;   // 目标寄存器地址
+  wire  [31:0]  decode_op1_out;    // 操作数1输出
+  wire  [31:0]  decode_op2_out;    // 操作数2输出
+  wire  [2:0]   decode_funct3;     // 功能码3位
+  wire  [6:0]   decode_funct7;     // 功能码7位
+  wire  [6:0]   decode_opcode;
 
-  // //reg寄存器输出
-  //   wire [31:0] reg_rs1_data;
-  //   wire [31:0] reg_rs2_data;
+  //regs寄存器
+  wire          regs_reg_en;//寄存器使能
+  wire  [4:0]   regs_reg_addr;
+  wire  [31:0]  regs_reg_data;
+  wire  [4:0]   regs_reg_rs1_addr;//输入地址
+  wire  [4:0]   regs_reg_rs2_addr;
+  wire  [31:0]  regs_reg_rs1_data;
+  wire  [31:0]  regs_reg_rs2_data;
+
+  //id2ex
+  wire          id2ex_instr_hold;
+  wire [31:0]   id2ex_instr_in;
+  wire [31:0]   id2ex_instr_addr_in;
+  wire [31:0]   id2ex_op1_in;
+  wire [31:0]   id2ex_op2_in;
+  wire [6:0]    id2ex_opcode_in;
+  wire [2:0]    id2ex_funct3_in;     // 功能码3位
+  wire [6:0]    id2ex_funct7_in;      // 功能码7位
+  wire [31:0]   id2ex_instr_out;
+  wire [31:0]   id2ex_instr_addr_out;
+  wire [31:0]   id2ex_op1_out;
+  wire [31:0]   id2ex_op2_out;
+  wire [2:0]    id2ex_funct3_out;     // 功能码3位
+  wire [6:0]    id2ex_funct7_out;      // 功能码7位
+  wire [6:0]    id2ex_opcode_out;
   /*=================================*/
 
   //pc_cnt输入
-  assign jump_en = 1'b0;
-  assign jump_hold = 1'b0;
-  assign jump_addr = 32'h0;
+  assign pc_jump_en = 1'b0;
+  assign pc_jump_hold = 1'b0;
+  assign pc_jump_addr = 32'h0;
 
   //rom输入
-  assign instr_addr = pc_pointer;
+  assign rom_instr_addr = pc_pointer;
 
   //if2id输入
-  assign instr_addr_if2id_in = pc_pointer;
-  assign instr_if2id_in = instr_rom_out;
-  assign instr_if2id_hold = 1'b0;
+  assign if2id_instr_addr_in = pc_pointer;
+  assign if2id_instr_in = rom_instr_out;
+  assign if2id_instr_hold = 1'b0;
 
-  // //decode输入
-  // assign   instr_decode_in = instr_if2id_out;  // 输入的指令
-  // assign   decode_rs1_data = reg_rs1_data;   // 源寄存器1的数据
-  // assign   decode_rs2_data = reg_rs2_data;   // 源寄存器2的数据
+  //decode输入
+  assign   decode_instr_in = if2id_instr_out;  // 输入的指令
+  assign   decode_rs1_data = regs_reg_rs1_data;   // 源寄存器1的数据
+  assign   decode_rs2_data = regs_reg_rs2_data;   // 源寄存器2的数据
 
-  // //reg输入
-  //   assign reg_en = 'h0;
-  //   assign reg_addr = 'h0;
-  //   assign reg_data = 'h0;
-  //   assign reg_rs1_addr = decode_rs1_addr;
-  //   assign reg_rs2_addr = decode_rs2_addr;
+  //reg输入
+  assign regs_reg_en = 'b0;
+  assign regs_reg_addr = 'b0;
+  assign regs_reg_data = 32'h0;
+  assign regs_reg_rs1_addr = decode_rs1_addr;
+  assign regs_reg_rs2_addr = decode_rs2_addr;
+
+  //id2ex
+  assign  id2ex_instr_hold   =       1'b0;
+  assign  id2ex_instr_in     =       if2id_instr_out;
+  assign  id2ex_instr_addr_in=       if2id_instr_addr_out;
+  assign  id2ex_op1_in       =       decode_op1_out;
+  assign  id2ex_op2_in       =       decode_op2_out;
+  assign  id2ex_funct3_in    =       decode_funct3;
+  assign  id2ex_funct7_in    =       decode_funct7;
+  assign  id2ex_opcode_in    =       decode_opcode;
 
 
   pc_cnt  pc_cnt_inst (
             .clk(clk),
             .rstn(rstn),
-            .jump_en(jump_en),
-            .jump_hold(jump_hold),
-            .jump_addr(jump_addr),
+            .jump_en(pc_jump_en),
+            .jump_hold(pc_jump_hold),
+            .jump_addr(pc_jump_addr),
             .pc_pointer(pc_pointer)
           );
 
   rom rom_inst (
-        .instr_addr(instr_addr),
-        .instr_out(instr_rom_out)
+        .instr_addr(rom_instr_addr),
+        .instr_out(rom_instr_out)
       );
 
   if_id  if_id_inst (
            .clk(clk),
            .rstn(rstn),
-           .instr_addr_in(instr_addr_if2id_in),
-           .instr_in(instr_if2id_in),
-           .instr_hold(instr_if2id_hold),
-           .instr_addr_out(instr_addr_if2id_out),
-           .instr_out(instr_if2id_out)
+           .instr_addr_in(if2id_instr_addr_in),
+           .instr_in(if2id_instr_in),
+           .instr_hold(if2id_instr_hold),
+           .instr_addr_out(if2id_instr_addr_out),
+           .instr_out(if2id_instr_out)
          );
 
-  // decode  decode_inst (
-  //           .instr_in(instr_decode_in),
-  //           .rs1_data(decode_rs1_data),
-  //           .rs2_data(decode_rs2_data),
-  //           .rs1_addr(decode_rs1_addr),
-  //           .rs2_addr(decode_rs2_addr),
-  //           .reg_addr(decode_reg_addr),
-  //           .op1_out(decode_op1_out),
-  //           .op2_out(decode_op2_out),
-  //           .funct3(decode_funct3),
-  //           .funct7(decode_funct7),
-  //           .opcode(decode_opcode)
-  //         );
+  decode  decode_inst (
+            .instr_in(decode_instr_in),
+            .rs1_data(decode_rs1_data),
+            .rs2_data(decode_rs2_data),
+            .rs1_addr(decode_rs1_addr),
+            .rs2_addr(decode_rs2_addr),
+            .reg_addr(decode_reg_addr),
+            .op1_out(decode_op1_out),
+            .op2_out(decode_op2_out),
+            .funct3(decode_funct3),
+            .funct7(decode_funct7),
+            .opcode(decode_opcode)
+          );
 
-  // regs  regs_inst (
-  //         .clk(clk),
-  //         .rstn(rstn),
-  //         .reg_en(reg_en),
-  //         .reg_addr(reg_addr),
-  //         .reg_data(reg_data),
-  //         .rs1_addr(reg_rs1_addr),
-  //         .rs2_addr(reg_rs2_addr),
-  //         .rs1_data(reg_rs1_data),
-  //         .rs2_data(reg_rs2_data)
-  //       );
+  regs  regs_inst (
+          .clk(clk),
+          .rstn(rstn),
+          .reg_en(regs_reg_en),
+          .reg_addr(regs_reg_addr),
+          .reg_data(regs_reg_data),
+          .rs1_addr(regs_reg_rs1_addr),
+          .rs2_addr(regs_reg_rs2_addr),
+          .rs1_data(regs_reg_rs1_data),
+          .rs2_data(regs_reg_rs2_data)
+        );
+  id_ex  id_ex_inst (
+           .clk(clk),
+           .rstn(rstn),
+           .instr_hold(id2ex_instr_hold),
+           .instr_in(id2ex_instr_in),
+           .instr_addr_in(id2ex_instr_addr_in),
+           .op1_in(id2ex_op1_in),
+           .op2_in(id2ex_op2_in),
+           .opcode_in(id2ex_opcode_in),
+           .funct3_in(id2ex_funct3_in),
+           .funct7_in(id2ex_funct7_in),
+           .instr_out(id2ex_instr_out),
+           .instr_addr_out(id2ex_instr_addr_out),
+           .op1_out(id2ex_op1_out),
+           .op2_out(id2ex_op2_out),
+           .funct3_out(id2ex_funct3_out),
+           .funct7_out(id2ex_funct7_out),
+           .opcode_out(id2ex_opcode_out)
+         );
 
 
 endmodule
