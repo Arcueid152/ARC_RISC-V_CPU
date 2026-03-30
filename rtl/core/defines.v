@@ -1,3 +1,5 @@
+// for testbench file
+`define FILE "C:/Users/darre/Documents/ARC_RISC-V_CPU/tests/rv32ui-p-add.txt"
 // I type inst
 `define INST_TYPE_I 7'b0010011
 `define INST_ADDI   3'b000
@@ -68,7 +70,5 @@
 `define INST_FENCE  7'b0001111
 `define INST_ECALL  32'h73
 `define INST_EBREAK 32'h00100073
-
-`define FILE        "C:/Users/13227/Documents/2026_JXS/ARC_RISC-V_CPU/tests/rv32ui-p-addi.txt"
 
 
