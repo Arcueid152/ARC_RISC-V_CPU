@@ -15,7 +15,14 @@ module ex (
     //跳转传回pc_cnt
     output reg jump_en,
     output reg jump_hold,
-    output reg [31:0]jump_addr
+    output reg [31:0]jump_addr,
+
+    output  reg            wr_en,
+    output  reg [31:0]     wr_addr,
+    output  reg [31:0]     wr_data,
+    output  reg [31:0]     rd_addr,
+    input   wire[31:0]     rd_data,     //原ram数据
+    input   wire[31:0]     rs2_data     //reg直接提取数据
   );
 
   // 指令字段定义
@@ -24,7 +31,7 @@ module ex (
 
   // 从指令中提取各字段
   assign rd       = instr_in[11:7];
-  assign imm_b    = {{20{instr_in[31]}}, instr_in[7], instr_in[30:25], instr_in[11:8], 1'b0}; // B型立即数拼接，末位补0
+  assign imm_b    = {{19{instr_in[31]}}, instr_in[31], instr_in[7], instr_in[30:25], instr_in[11:8], 1'b0}; // B型立即数拼接，末位补0，符号扩展
 
   always @( *)
   begin
@@ -35,6 +42,10 @@ module ex (
     jump_en = 1'b0;
     jump_addr = 'h0;
     jump_hold = 1'b0;
+    wr_en = 1'b0;
+    wr_addr = 32'h0;
+    wr_data = 32'h0;
+    rd_addr = 32'h0;
     case (opcode)
       `INST_TYPE_I:
       begin
@@ -143,57 +154,124 @@ module ex (
           end
         endcase
       end
-      `INST_TYPE_L:
-      begin
-        case(funct3)
-          `INST_LB:
-          begin
-
-          end
-          `INST_LH:
-          begin
-
-          end
-          `INST_LW:
-          begin
-
-          end
-          `INST_LBU:
-          begin
-
-          end
-          `INST_LHU:
-          begin
-
-          end
-          default:
-          begin
-            reg_en = 1'b0;
+`INST_TYPE_L:
+begin
+    reg_en = 1'b0;
+    wr_en = 1'b0;
+    jump_en = 1'b0;
+    jump_addr = 'h0;
+    jump_hold = 1'b0;
+    case(funct3)
+        `INST_LB:
+        begin
+            reg_en   = 1'b1;
+            rd_addr  = op1 + op2;
+            reg_addr = rd;
+            case (rd_addr[1:0])
+                2'b00   : reg_data = {{24{rd_data[7]}},rd_data[7:0]};
+                2'b01   : reg_data = {{24{rd_data[15]}},rd_data[15:8]};
+                2'b10   : reg_data = {{24{rd_data[23]}},rd_data[23:16]};
+                2'b11   : reg_data = {{24{rd_data[31]}},rd_data[31:24]};
+                default : reg_data = {{24{rd_data[7]}},rd_data[7:0]};
+            endcase
+        end
+        `INST_LH:
+        begin
+            reg_en   = 1'b1;
+            rd_addr  = op1 + op2;
+            reg_addr = rd;
+            case (rd_addr[1])
+                1'b0    : reg_data = {{16{rd_data[15]}},rd_data[15:0]};
+                1'b1    : reg_data = {{16{rd_data[31]}},rd_data[31:16]};
+                default : reg_data = {{16{rd_data[15]}},rd_data[15:0]};
+            endcase
+        end
+        `INST_LW:
+        begin
+            reg_en   = 1'b1;
+            rd_addr  = op1 + op2;
+            reg_addr = rd;
+            reg_data = rd_data;
+        end
+        `INST_LBU:
+        begin
+            reg_en   = 1'b1;
+            rd_addr  = op1 + op2;
+            reg_addr = rd;
+            case (rd_addr[1:0])
+                2'b00   : reg_data = {24'h0,rd_data[7:0]};
+                2'b01   : reg_data = {24'h0,rd_data[15:8]};
+                2'b10   : reg_data = {24'h0,rd_data[23:16]};
+                2'b11   : reg_data = {24'h0,rd_data[31:24]};
+                default : reg_data = {24'h0,rd_data[7:0]};
+            endcase
+        end
+        `INST_LHU:
+        begin
+            reg_en   = 1'b1;
+            rd_addr  = op1 + op2;
+            reg_addr = rd;
+            case (rd_addr[1])
+                1'b0    : reg_data = {16'h0,rd_data[15:0]};
+                1'b1    : reg_data = {16'h0,rd_data[31:16]};
+                default : reg_data = {16'h0,rd_data[15:0]};
+            endcase
+        end
+        default:
+        begin
+            reg_en   = 1'b0;
             reg_addr = 5'h0;
             reg_data = 32'b0;
-          end
-        endcase
-      end
+            rd_addr  = 32'h0;
+        end
+    endcase
+end
       `INST_TYPE_S:
       begin
+            wr_en = 1'b0;
+            wr_addr = 5'h0;
+            wr_data = 32'b0;
+            jump_en = 1'b0;
+            jump_addr = 'h0;
+            jump_hold = 1'b0;
         case (funct3)
           `INST_SB:
           begin
-
+            wr_en = 1'b1;
+            wr_addr = op1 + op2;
+            rd_addr = op1 + op2;
+        case (wr_addr[1:0])
+            2'b00  :  wr_data = {rd_data[31:8],rs2_data[7:0]};
+            2'b01  :  wr_data = {rd_data[31:16],rs2_data[7:0],rd_data[7:0]};
+            2'b10  :  wr_data = {rd_data[31:24],rs2_data[7:0],rd_data[15:0]};
+            2'b11  :  wr_data = {rs2_data[7:0],rd_data[23:0]};
+            default :wr_data = {rd_data[31:8],rs2_data[7:0]};
+        endcase
           end
           `INST_SH:
           begin
-
+            wr_en = 1'b1;
+            wr_addr = op1 + op2;
+            rd_addr = op1 + op2;
+        case (wr_addr[1])
+            1'b0  :  wr_data = {rd_data[31:16],rs2_data[15:0]};
+            1'b1  :  wr_data = {rs2_data[15:0],rd_data[15:0]};
+            default :wr_data = {rd_data[31:16],rs2_data[15:0]};
+        endcase
           end
           `INST_SW:
           begin
-
+            wr_en = 1'b1;
+            wr_addr = op1 + op2;
+            rd_addr = op1 + op2;
+            wr_data = rs2_data;
           end
           default:
           begin
-            reg_en = 1'b0;
-            reg_addr = 5'h0;
-            reg_data = 32'b0;
+            wr_en = 1'b0;
+            wr_addr = 5'h0;
+            wr_data = 32'b0;
+            rd_addr = 32'h0;
           end
         endcase
       end

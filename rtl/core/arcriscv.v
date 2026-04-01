@@ -78,6 +78,21 @@ module arcriscv (
   wire ex_jump_en;
   wire ex_jump_hold;
   wire [31:0]ex_jump_addr;
+
+  wire ex_wr_en;
+  wire [31:0]ex_wr_addr;
+  wire [31:0]ex_wr_data;
+  wire [31:0]ex_rd_addr;
+  wire [31:0]ex_rd_data;
+  wire [31:0]ex_rs2_data;
+
+  //ram
+  wire ram_wr_en;
+  wire [31:0]ram_wr_addr;
+  wire [31:0]ram_wr_data;
+  wire [31:0]ram_rd_addr;
+  wire [31:0]ram_rd_data;
+
   /*=================================*/
 
   //pc_cnt输入
@@ -124,6 +139,14 @@ module arcriscv (
   assign ex_funct3 = id2ex_funct3_out; 
   assign ex_funct7 = id2ex_funct7_out; 
   assign ex_opcode = id2ex_opcode_out; 
+  assign ex_rd_data = ram_rd_data;
+  assign ex_rs2_data = regs_reg_rs2_data;
+
+  //ram输入
+  assign ram_wr_en = ex_wr_en;
+  assign ram_wr_addr = ex_wr_addr;
+  assign ram_wr_data = ex_wr_data;
+  assign ram_rd_addr = ex_rd_addr;
 
 
   pc_cnt  pc_cnt_inst (
@@ -208,8 +231,26 @@ module arcriscv (
         .reg_data(ex_reg_data),
         .jump_en(ex_jump_en),
         .jump_hold(ex_jump_hold),
-        .jump_addr(ex_jump_addr)
+        .jump_addr(ex_jump_addr),
+        .wr_en(ex_wr_en),
+        .wr_addr(ex_wr_addr),
+        .wr_data(ex_wr_data),
+        .rd_addr(ex_rd_addr),
+        .rd_data(ex_rd_data),
+        .rs2_data(ex_rs2_data)
       );
+ 
+  ram  ram_inst (
+     .clk(clk),
+     .rst_n(rstn),
+     .wr_en(ram_wr_en),
+     .wr_addr(ram_wr_addr),
+     .wr_data(ram_wr_data),
+     .rd_addr(ram_rd_addr),
+     .rd_data(ram_rd_data)
+     );
 
+
+  
 
 endmodule
