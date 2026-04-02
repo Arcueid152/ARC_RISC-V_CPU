@@ -34,6 +34,7 @@ module arcriscv (
   wire  [2:0]   decode_funct3;     // 功能码3位
   wire  [6:0]   decode_funct7;     // 功能码7位
   wire  [6:0]   decode_opcode;
+  wire  [31:0]  decode_rs2_data_out; // ===== 新增：decode 输出的 rs2_data =====
 
   //regs寄存器
   wire          regs_reg_en;//寄存器使能
@@ -53,6 +54,7 @@ module arcriscv (
   wire [6:0]    id2ex_opcode_in;
   wire [2:0]    id2ex_funct3_in;     // 功能码3位
   wire [6:0]    id2ex_funct7_in;      // 功能码7位
+  wire [31:0]   id2ex_rs2_data_in;    // ===== 新增：id_ex 输入的 rs2_data =====
   wire [31:0]   id2ex_instr_out;
   wire [31:0]   id2ex_instr_addr_out;
   wire [31:0]   id2ex_op1_out;
@@ -60,6 +62,7 @@ module arcriscv (
   wire [2:0]    id2ex_funct3_out;     // 功能码3位
   wire [6:0]    id2ex_funct7_out;      // 功能码7位
   wire [6:0]    id2ex_opcode_out;
+  wire [31:0]   id2ex_rs2_data_out;   // ===== 新增：id_ex 输出的 rs2_data =====
 
   //ex
   wire [31:0] ex_instr_in;
@@ -84,7 +87,7 @@ module arcriscv (
   wire [31:0]ex_wr_data;
   wire [31:0]ex_rd_addr;
   wire [31:0]ex_rd_data;
-  wire [31:0]ex_rs2_data;
+  wire [31:0]ex_rs2_data;   // 改为来自 id_ex 的输出
 
   //ram
   wire ram_wr_en;
@@ -120,7 +123,7 @@ module arcriscv (
   assign regs_reg_rs1_addr = decode_rs1_addr;
   assign regs_reg_rs2_addr = decode_rs2_addr;
 
-  //id2ex
+  //id2ex 输入连接
   assign  id2ex_instr_hold   =       ex_jump_hold;
   assign  id2ex_instr_in     =       if2id_instr_out;
   assign  id2ex_instr_addr_in=       if2id_instr_addr_out;
@@ -129,8 +132,9 @@ module arcriscv (
   assign  id2ex_funct3_in    =       decode_funct3;
   assign  id2ex_funct7_in    =       decode_funct7;
   assign  id2ex_opcode_in    =       decode_opcode;
+  assign  id2ex_rs2_data_in  =       decode_rs2_data_out;   // ===== 新增 =====
 
-  //ex
+  //ex输入
   assign  ex_instr_in = id2ex_instr_out;
   assign  ex_instr_addr_in = id2ex_instr_addr_out;
 
@@ -140,7 +144,7 @@ module arcriscv (
   assign ex_funct7 = id2ex_funct7_out; 
   assign ex_opcode = id2ex_opcode_out; 
   assign ex_rd_data = ram_rd_data;
-  assign ex_rs2_data = regs_reg_rs2_data;
+  assign ex_rs2_data = id2ex_rs2_data_out;   // ===== 修改：从 id_ex 输出获取 rs2_data =====
 
   //ram输入
   assign ram_wr_en = ex_wr_en;
@@ -184,7 +188,8 @@ module arcriscv (
             .op2_out(decode_op2_out),
             .funct3(decode_funct3),
             .funct7(decode_funct7),
-            .opcode(decode_opcode)
+            .opcode(decode_opcode),
+            .rs2_data_out(decode_rs2_data_out)   // ===== 新增 =====
           );
 
   regs  regs_inst (
@@ -209,13 +214,15 @@ module arcriscv (
            .opcode_in(id2ex_opcode_in),
            .funct3_in(id2ex_funct3_in),
            .funct7_in(id2ex_funct7_in),
+           .rs2_data_in(id2ex_rs2_data_in),      // ===== 新增 =====
            .instr_out(id2ex_instr_out),
            .instr_addr_out(id2ex_instr_addr_out),
            .op1_out(id2ex_op1_out),
            .op2_out(id2ex_op2_out),
            .funct3_out(id2ex_funct3_out),
            .funct7_out(id2ex_funct7_out),
-           .opcode_out(id2ex_opcode_out)
+           .opcode_out(id2ex_opcode_out),
+           .rs2_data_out(id2ex_rs2_data_out)     // ===== 新增 =====
          );
 
   ex  ex_inst (
@@ -237,7 +244,7 @@ module arcriscv (
         .wr_data(ex_wr_data),
         .rd_addr(ex_rd_addr),
         .rd_data(ex_rd_data),
-        .rs2_data(ex_rs2_data)
+        .rs2_data(ex_rs2_data)      // 已修改为来自 id_ex 的输出
       );
  
   ram  ram_inst (
@@ -249,8 +256,5 @@ module arcriscv (
      .rd_addr(ram_rd_addr),
      .rd_data(ram_rd_data)
      );
-
-
   
-
 endmodule

@@ -11,8 +11,9 @@ module decode (
     output reg      [31:0]  op1_out,    // 操作数1输出
     output reg      [31:0]  op2_out,    // 操作数2输出
     output wire     [2:0]   funct3,     // 功能码3位
-    output wire     [6:0]   funct7,      // 功能码7位
-    output wire     [6:0]   opcode
+    output wire     [6:0]   funct7,     // 功能码7位
+    output wire     [6:0]   opcode,
+    output reg      [31:0]  rs2_data_out // ===== 新增：直接传递源寄存器2的数据 =====
   );
 
   // 指令字段定义
@@ -43,6 +44,7 @@ module decode (
     op1_out   =   32'h0;
     op2_out   =   32'h0;
     reg_addr  =   5'h0;
+    rs2_data_out = rs2_data;   // ===== 新增：默认传递输入的 rs2_data =====
 
     // 根据操作码进行指令译码
     case (opcode)
@@ -138,15 +140,6 @@ module decode (
         reg_addr = 5'h0;
       end
 
-      // `INST_CSR:
-      // begin // CSR指令（控制状态寄存器操作）
-      //   rs1_addr = rs1;                         // 源寄存器（可能为x0）
-      //   rs2_addr = 5'h0;
-      //   op1_out  = rs1_data;                    // 源寄存器值
-      //   op2_out  = {{20{imm_i[11]}}, imm_i};    // CSR立即数（符号扩展或零扩展，具体由funct3决定）
-      //   reg_addr = rd;                          // 目标寄存器
-      // end
-
       default:
       begin
         // 未知指令，保持默认值（全0）
@@ -155,6 +148,7 @@ module decode (
         op1_out   =   32'h0;
         op2_out   =   32'h0;
         reg_addr  =   5'h0;
+        // rs2_data_out 已在开头赋默认值，无需重复
       end
     endcase
   end
