@@ -159,6 +159,7 @@ module arcriscv (
             .jump_en(pc_jump_en),
             .jump_hold(pc_jump_hold),
             .jump_addr(pc_jump_addr),
+            .periph_hold_pc(periph_hold_pc),
             .pc_pointer(pc_pointer)
           );
 

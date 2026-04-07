@@ -25,10 +25,6 @@ end
 
 // 读操作
 always @(*) begin
-    if (wr_en && (wr_addr[31:2] == rd_addr[31:2])) begin
-        rd_data = wr_data;
-    end else begin
         rd_data = ram_mem[rd_addr[31:2]];
-    end
 end
 endmodule
