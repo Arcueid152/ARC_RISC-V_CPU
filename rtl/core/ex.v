@@ -118,7 +118,7 @@ module ex (
           end
           `INST_SRI:
           begin
-            if (funct7 == 'h0)
+            if (funct7 == `FUNCT7_SRLI)
             begin
               reg_en = 1'b1;
               reg_addr = rd;
@@ -127,7 +127,7 @@ module ex (
               jump_addr = 'h0;
               jump_hold = 1'b0;
             end
-            else if (funct7 == 'h20)
+            else if (funct7 == `FUNCT7_SRAI)
             begin
               reg_en = 1'b1;
               reg_addr = rd;
@@ -351,7 +351,7 @@ end
         case (funct3)
           `INST_ADD_SUB:
           begin
-            if(funct7 == 'h0)
+            if(funct7 == `FUNCT7_ADD)
             begin
               reg_en = 1'b1;
               reg_addr = rd;
@@ -360,7 +360,7 @@ end
               jump_addr = 'h0;
               jump_hold = 1'b0;
             end
-            else if(funct7 == 'h20)
+            else if(funct7 == `FUNCT7_SUB)
             begin
               reg_en = 1'b1;
               reg_addr = rd;
@@ -417,7 +417,7 @@ end
           end
           `INST_SR:
           begin
-            if (funct7 == 'h0)
+            if (funct7 == `FUNCT7_SRLI)
             begin
               reg_en = 1'b1;
               reg_addr = rd;
@@ -426,7 +426,7 @@ end
               jump_addr = 'h0;
               jump_hold = 1'b0;
             end
-            else if(funct7 == 'h20)
+            else if(funct7 == `FUNCT7_SRAI)
             begin
               reg_en = 1'b1;
               reg_addr = rd;

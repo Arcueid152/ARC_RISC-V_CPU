@@ -1,5 +1,5 @@
 // for testbench file
-`define FILE "C:/Users/darre/Documents/ARC_RISC-V_CPU/tests/rv32ui-p-jalr.txt"
+`define FILE "C:/Users/darre/Documents/ARC_RISC-V_CPU/tests/rv32ui-p-srai.txt"
 // I type inst
 `define INST_TYPE_I 7'b0010011
 `define INST_ADDI   3'b000
@@ -10,6 +10,10 @@
 `define INST_ANDI   3'b111
 `define INST_SLLI   3'b001
 `define INST_SRI    3'b101
+`define FUNCT7_SRLI 7'b0000000
+`define FUNCT7_SRAI 7'b0100000
+`define FUNCT7_ADD  7'b0000000
+`define FUNCT7_SUB  7'b0100000
 
 // L type inst
 `define INST_TYPE_L 7'b0000011
