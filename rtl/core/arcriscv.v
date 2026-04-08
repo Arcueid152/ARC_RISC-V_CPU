@@ -10,6 +10,7 @@ module arcriscv (
   wire          pc_jump_en;
   wire          pc_jump_hold;
   wire  [31:0]  pc_jump_addr;
+  wire          pc_periph_hold_pc;
 
   //rom
   wire  [31:0]  rom_instr_out;
@@ -21,6 +22,10 @@ module arcriscv (
   wire  [31:0]  if2id_instr_addr_in ;
   wire  [31:0]  if2id_instr_in ;
   wire          if2id_instr_hold;
+  wire          if2id_periph_hold_pc;
+  wire          if2id_wr_periph_reg;
+  wire          if2id_rd_periph_reg;
+
 
   //decode
   wire  [31:0]  decode_instr_in;   // 输入的指令
@@ -63,6 +68,11 @@ module arcriscv (
   wire [6:0]    id2ex_funct7_out;      // 功能码7位
   wire [6:0]    id2ex_opcode_out;
   wire [31:0]   id2ex_rs2_data_out;   // ===== 新增：id_ex 输出的 rs2_data =====
+  wire          id2ex_periph_write_back;
+  wire          id2ex_wr_reg_en;
+  wire          id2ex_wr_periph_reg;
+  wire          id2ex_rd_periph_reg;
+  wire          id2ex_periph_hold_pc;
 
   //ex
   wire [31:0] ex_instr_in;
@@ -88,6 +98,8 @@ module arcriscv (
   wire [31:0]ex_rd_addr;
   wire [31:0]ex_rd_data;
   wire [31:0]ex_rs2_data;   // 改为来自 id_ex 的输出
+  wire       ex_periph_write_back;
+  wire       ex_wr_reg_en;
 
   //ram
   wire ram_wr_en;
@@ -102,6 +114,7 @@ module arcriscv (
   assign pc_jump_en = ex_jump_en;
   assign pc_jump_hold = ex_jump_hold;
   assign pc_jump_addr = ex_jump_addr;
+  assign pc_periph_hold_pc = if2id_periph_hold_pc;
 
   //rom输入
   assign rom_instr_addr = pc_pointer;
@@ -124,7 +137,7 @@ module arcriscv (
   assign regs_reg_rs2_addr = decode_rs2_addr;
 
   //id2ex 输入连接
-  assign  id2ex_instr_hold   =       ex_jump_hold;
+  assign  id2ex_instr_hold   =       ex_jump_hold | if2id_periph_hold_pc;
   assign  id2ex_instr_in     =       if2id_instr_out;
   assign  id2ex_instr_addr_in=       if2id_instr_addr_out;
   assign  id2ex_op1_in       =       decode_op1_out;
@@ -133,6 +146,9 @@ module arcriscv (
   assign  id2ex_funct7_in    =       decode_funct7;
   assign  id2ex_opcode_in    =       decode_opcode;
   assign  id2ex_rs2_data_in  =       decode_rs2_data_out;   // ===== 新增 =====
+  assign  id2ex_wr_periph_reg =      if2id_wr_periph_reg;
+  assign  id2ex_rd_periph_reg =      if2id_rd_periph_reg;
+  assign  id2ex_periph_hold_pc =     if2id_periph_hold_pc;
 
   //ex输入
   assign  ex_instr_in = id2ex_instr_out;
@@ -145,6 +161,8 @@ module arcriscv (
   assign ex_opcode = id2ex_opcode_out; 
   assign ex_rd_data = ram_rd_data;
   assign ex_rs2_data = id2ex_rs2_data_out;   // ===== 修改：从 id_ex 输出获取 rs2_data =====
+  assign ex_periph_write_back = id2ex_periph_write_back;
+  assign ex_wr_reg_en = id2ex_wr_reg_en;
 
   //ram输入
   assign ram_wr_en = ex_wr_en;
@@ -159,7 +177,7 @@ module arcriscv (
             .jump_en(pc_jump_en),
             .jump_hold(pc_jump_hold),
             .jump_addr(pc_jump_addr),
-            .periph_hold_pc(periph_hold_pc),
+            .periph_hold_pc(pc_periph_hold_pc),
             .pc_pointer(pc_pointer)
           );
 
@@ -175,7 +193,10 @@ module arcriscv (
            .instr_in(if2id_instr_in),
            .instr_hold(if2id_instr_hold),
            .instr_addr_out(if2id_instr_addr_out),
-           .instr_out(if2id_instr_out)
+           .instr_out(if2id_instr_out),
+           .periph_hold_pc(if2id_periph_hold_pc),
+           .wr_periph_reg(if2id_wr_periph_reg),
+           .rd_periph_reg(if2id_rd_periph_reg)
          );
 
   decode  decode_inst (
@@ -223,7 +244,12 @@ module arcriscv (
            .funct3_out(id2ex_funct3_out),
            .funct7_out(id2ex_funct7_out),
            .opcode_out(id2ex_opcode_out),
-           .rs2_data_out(id2ex_rs2_data_out)     // ===== 新增 =====
+           .rs2_data_out(id2ex_rs2_data_out),     // ===== 新增 =====
+           .wr_periph_reg_in(id2ex_wr_periph_reg),
+           .rd_periph_reg_in(id2ex_rd_periph_reg),
+           .periph_write_back(id2ex_periph_write_back),
+           .wr_reg_en(id2ex_wr_reg_en),
+           .periph_hold_pc(id2ex_periph_hold_pc)
          );
 
   ex  ex_inst (
@@ -245,7 +271,9 @@ module arcriscv (
         .wr_data(ex_wr_data),
         .rd_addr(ex_rd_addr),
         .rd_data(ex_rd_data),
-        .rs2_data(ex_rs2_data)      // 已修改为来自 id_ex 的输出
+        .rs2_data(ex_rs2_data),      // 已修改为来自 id_ex 的输出
+        .periph_write_back(ex_periph_write_back),
+        .wr_reg_en(ex_wr_reg_en)
       );
  
   ram  ram_inst (

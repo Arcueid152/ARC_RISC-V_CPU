@@ -22,7 +22,10 @@ module ex (
     output  reg [31:0]     wr_data,
     output  reg [31:0]     rd_addr,
     input   wire[31:0]     rd_data,     //原ram数据
-    input   wire[31:0]     rs2_data     //reg直接提取数据
+    input   wire[31:0]     rs2_data,     //reg直接提取数据
+    input   wire           periph_write_back,    //id输入
+
+    input   wire wr_reg_en    //由id_ex输入
   );
 
   // 指令字段定义
@@ -164,7 +167,7 @@ begin
     case(funct3)
         `INST_LB:
         begin
-            reg_en   = 1'b1;
+            reg_en   = wr_reg_en & periph_write_back;
             rd_addr  = op1 + op2;
             reg_addr = rd;
             case (rd_addr[1:0])
@@ -177,7 +180,7 @@ begin
         end
         `INST_LH:
         begin
-            reg_en   = 1'b1;
+            reg_en   = wr_reg_en & periph_write_back;
             rd_addr  = op1 + op2;
             reg_addr = rd;
             case (rd_addr[1])
@@ -188,14 +191,14 @@ begin
         end
         `INST_LW:
         begin
-            reg_en   = 1'b1;
+            reg_en   = wr_reg_en & periph_write_back;
             rd_addr  = op1 + op2;
             reg_addr = rd;
             reg_data = rd_data;
         end
         `INST_LBU:
         begin
-            reg_en   = 1'b1;
+            reg_en   = wr_reg_en & periph_write_back;
             rd_addr  = op1 + op2;
             reg_addr = rd;
             case (rd_addr[1:0])
@@ -208,7 +211,7 @@ begin
         end
         `INST_LHU:
         begin
-            reg_en   = 1'b1;
+            reg_en   = wr_reg_en & periph_write_back;
             rd_addr  = op1 + op2;
             reg_addr = rd;
             case (rd_addr[1])
@@ -237,7 +240,7 @@ end
         case (funct3)
           `INST_SB:
           begin
-            wr_en = 1'b1;
+            wr_en = wr_reg_en;
             wr_addr = op1 + op2;
             rd_addr = op1 + op2;
         case (wr_addr[1:0])
@@ -250,7 +253,7 @@ end
           end
           `INST_SH:
           begin
-            wr_en = 1'b1;
+            wr_en = wr_reg_en;
             wr_addr = op1 + op2;
             rd_addr = op1 + op2;
         case (wr_addr[1])
@@ -261,7 +264,7 @@ end
           end
           `INST_SW:
           begin
-            wr_en = 1'b1;
+            wr_en = wr_reg_en;
             wr_addr = op1 + op2;
             rd_addr = op1 + op2;
             wr_data = rs2_data;

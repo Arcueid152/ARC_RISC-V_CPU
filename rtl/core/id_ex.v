@@ -11,6 +11,8 @@ module id_ex (
     input wire [31:0] op2_in,
     input wire [6:0]  opcode_in,
 
+    input   wire      periph_hold_pc,
+
     input wire [2:0]   funct3_in,     // 功能码3位
     input wire [6:0]   funct7_in,     // 功能码7位
 
@@ -23,8 +25,16 @@ module id_ex (
     output reg [2:0]  funct3_out,     // 功能码3位
     output reg [6:0]  funct7_out,     // 功能码7位
     output reg [6:0]  opcode_out,
-    output reg [31:0] rs2_data_out    // ===== 新增：输出的 rs2_data =====
+    output reg [31:0] rs2_data_out,    // ===== 新增：输出的 rs2_data =====
+    output reg        periph_write_back,
+
+    input  wire       wr_periph_reg_in,   //来自if_id的外设写信号
+    input  wire       rd_periph_reg_in,   //来自if_id的外设读信号
+    output reg        wr_reg_en      //输出给ex
   );
+
+  wire wr_reg_en_in;
+  assign wr_reg_en_in = wr_periph_reg_in | rd_periph_reg_in;
 
   //时序逻辑
   always @(posedge clk or negedge rstn)
@@ -39,6 +49,7 @@ module id_ex (
       funct7_out        <= 7'h0;
       opcode_out        <= 7'h0;
       rs2_data_out      <= 32'h0;     // ===== 新增 =====
+      wr_reg_en         <= 1'b0;
     end
     else if(instr_hold)
     begin
@@ -50,6 +61,7 @@ module id_ex (
       funct7_out        <= 7'h0;
       opcode_out        <= 7'h0;
       rs2_data_out      <= 32'h0;     // ===== 新增 =====
+      wr_reg_en         <= 1'b0;      
     end
     else
     begin
@@ -61,6 +73,16 @@ module id_ex (
       funct7_out        <=      funct7_in;
       opcode_out        <=      opcode_in;
       rs2_data_out      <=      rs2_data_in;   // ===== 新增 =====
+      wr_reg_en         <=      wr_reg_en_in;      
     end
+  end
+
+  always @(posedge clk or negedge rstn)begin
+    if(!rstn)
+      periph_write_back <= 1'b0;
+    else if(periph_hold_pc)
+      periph_write_back <= 1'b1;
+    else
+      periph_write_back <= 1'b0;
   end
 endmodule

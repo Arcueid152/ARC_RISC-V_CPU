@@ -26,6 +26,21 @@ always @(*) begin
     periph_hold_pc = wr_periph_reg | rd_periph_reg;
 end
 
+  //存一拍用于原地踏步一拍
+always @(posedge clk or negedge rstn) begin
+  if(!rstn)
+    begin
+      instr_in_last <= 1'h0;
+      instr_addr_in_last <= 1'h0;
+    end
+  else
+    begin
+      instr_in_last <= instr_in;
+      instr_addr_in_last <= instr_addr_in;
+    end
+  end
+
+  
   //流水线寄存器
   always @(posedge clk or negedge rstn)
     if(!rstn)
@@ -66,21 +81,13 @@ end
     end
     else if (opcode == `INST_TYPE_L)
     begin
-      wr_periph_reg <= 1'b1;
-      rd_periph_reg <= 1'b0;
+      wr_periph_reg <= 1'b0;
+      rd_periph_reg <= 1'b1;
     end
     else if (opcode == `INST_TYPE_S)
     begin
-      if(func3 == `INST_SW)
-        begin
       wr_periph_reg <= 1'b1;
-      rd_periph_reg <= 1'b0;
-        end
-      else 
-        begin
-      wr_periph_reg <= 1'b0;
-      rd_periph_reg <= 1'b0;
-        end
+      rd_periph_reg <= (func3 == `INST_SB || func3 == `INST_SH) ? 1'b1 : 1'b0;
     end
     else
     begin
