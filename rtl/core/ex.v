@@ -131,7 +131,7 @@ module ex (
             begin
               reg_en = 1'b1;
               reg_addr = rd;
-              reg_data = op1 >>> op2[4:0];
+              reg_data = $signed(op1) >>> op2[4:0];
               jump_en = 1'b0;
               jump_addr = 'h0;
               jump_hold = 1'b0;
@@ -430,7 +430,7 @@ end
             begin
               reg_en = 1'b1;
               reg_addr = rd;
-              reg_data = op1 >>> op2[4:0];
+              reg_data = $signed(op1) >>> op2[4:0];
               jump_en = 1'b0;
               jump_addr = 'h0;
               jump_hold = 1'b0;

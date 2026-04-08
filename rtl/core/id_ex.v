@@ -34,7 +34,7 @@ module id_ex (
   );
 
   wire wr_reg_en_in;
-  assign wr_reg_en_in = wr_periph_reg_in | rd_periph_reg_in;
+  assign wr_reg_en_in = (opcode_in == `INST_TYPE_L) || (opcode_in == `INST_TYPE_S);
 
   //时序逻辑
   always @(posedge clk or negedge rstn)
