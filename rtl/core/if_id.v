@@ -74,7 +74,7 @@ always @(posedge clk or negedge rstn) begin
       wr_periph_reg <= 1'b0;
       rd_periph_reg <= 1'b0;
     end
-    else if (instr_hold)
+    else if (instr_hold || periph_hold_pc)
     begin
       wr_periph_reg <= 1'b0;
       rd_periph_reg <= 1'b0;

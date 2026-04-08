@@ -167,7 +167,7 @@ begin
     case(funct3)
         `INST_LB:
         begin
-            reg_en   = wr_reg_en & periph_write_back;
+            reg_en   = wr_reg_en;
             rd_addr  = op1 + op2;
             reg_addr = rd;
             case (rd_addr[1:0])
@@ -180,7 +180,7 @@ begin
         end
         `INST_LH:
         begin
-            reg_en   = wr_reg_en & periph_write_back;
+            reg_en   = wr_reg_en;
             rd_addr  = op1 + op2;
             reg_addr = rd;
             case (rd_addr[1])
@@ -191,14 +191,14 @@ begin
         end
         `INST_LW:
         begin
-            reg_en   = wr_reg_en & periph_write_back;
+            reg_en   = wr_reg_en;
             rd_addr  = op1 + op2;
             reg_addr = rd;
             reg_data = rd_data;
         end
         `INST_LBU:
         begin
-            reg_en   = wr_reg_en & periph_write_back;
+            reg_en   = wr_reg_en;
             rd_addr  = op1 + op2;
             reg_addr = rd;
             case (rd_addr[1:0])
@@ -211,7 +211,7 @@ begin
         end
         `INST_LHU:
         begin
-            reg_en   = wr_reg_en & periph_write_back;
+            reg_en   = wr_reg_en;
             rd_addr  = op1 + op2;
             reg_addr = rd;
             case (rd_addr[1])
