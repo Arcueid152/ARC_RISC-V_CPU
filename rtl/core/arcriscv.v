@@ -15,6 +15,8 @@ module arcriscv (
   //rom
   wire  [31:0]  rom_instr_out;
   wire  [31:0]  rom_instr_addr;
+  wire  [31:0]  rom_data_out;   // ★ 新增：ROM 数据读口输出
+  wire  [31:0]  rom_data_addr;  // ★ 新增：ROM 数据读口地址
 
   //if2id
   wire  [31:0]  if2id_instr_addr_out;
@@ -107,6 +109,7 @@ module arcriscv (
   wire [31:0]ram_wr_data;
   wire [31:0]ram_rd_addr;
   wire [31:0]ram_rd_data;
+  wire        load_from_rom;  //  新增：load 地址落在 ROM 范围标志
 
   /*=================================*/
 
@@ -159,7 +162,10 @@ module arcriscv (
   assign ex_funct3 = id2ex_funct3_out; 
   assign ex_funct7 = id2ex_funct7_out; 
   assign ex_opcode = id2ex_opcode_out; 
-  assign ex_rd_data = ram_rd_data;
+  // 修改：load 地址在 ROM 范围(0~0x3FFF)内读 ROM，否则读 RAM
+  assign rom_data_addr = ex_rd_addr;
+  assign load_from_rom = (ex_rd_addr < 32'h4000);
+  assign ex_rd_data    = load_from_rom ? rom_data_out : ram_rd_data;
   assign ex_rs2_data = id2ex_rs2_data_out;   // ===== 修改：从 id_ex 输出获取 rs2_data =====
   assign ex_periph_write_back = id2ex_periph_write_back;
   assign ex_wr_reg_en = id2ex_wr_reg_en;
@@ -183,7 +189,9 @@ module arcriscv (
 
   rom rom_inst (
         .instr_addr(rom_instr_addr),
-        .instr_out(rom_instr_out)
+        .instr_out(rom_instr_out),
+        .data_addr(rom_data_addr),   
+        .data_out(rom_data_out)      
       );
 
   if_id  if_id_inst (
