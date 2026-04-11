@@ -1,7 +1,7 @@
 `include "defines.v"
 module if_id (
     input   wire        clk,
-    input   wire        rstn,
+    input   wire        rst,
     input   wire [31:0] instr_addr_in,
     input   wire [31:0] instr_in,
     input   wire        instr_hold,
@@ -27,8 +27,8 @@ always @(*) begin
 end
 
   //存一拍用于原地踏步一拍
-always @(posedge clk or negedge rstn) begin
-  if(!rstn)
+always @(posedge clk or posedge rst) begin
+  if(rst)
     begin
       instr_in_last <= 1'h0;
       instr_addr_in_last <= 1'h0;
@@ -42,8 +42,8 @@ always @(posedge clk or negedge rstn) begin
 
   
   //流水线寄存器
-  always @(posedge clk or negedge rstn)
-    if(!rstn)
+  always @(posedge clk or posedge rst)
+    if(rst)
     begin
       instr_addr_out <= 32'h0;
       instr_out <= `INST_NOP;
@@ -68,8 +68,8 @@ always @(posedge clk or negedge rstn) begin
 
 
 //外设访问
-   always @(posedge clk or negedge rstn)
-    if(!rstn)
+   always @(posedge clk or posedge rst)
+    if(rst)
     begin
       wr_periph_reg <= 1'b0;
       rd_periph_reg <= 1'b0;

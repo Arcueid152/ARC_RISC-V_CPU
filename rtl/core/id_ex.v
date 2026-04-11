@@ -1,7 +1,7 @@
 `include "defines.v"
 module id_ex (
     input wire clk,
-    input  wire rstn,
+    input  wire rst,
 
     input  wire instr_hold,
 
@@ -37,9 +37,9 @@ module id_ex (
   assign wr_reg_en_in = (opcode_in == `INST_TYPE_L) || (opcode_in == `INST_TYPE_S);
 
   //时序逻辑
-  always @(posedge clk or negedge rstn)
+  always @(posedge clk or posedge rst)
   begin
-    if(!rstn)
+    if(rst)
     begin
       instr_out         <= `INST_NOP;
       instr_addr_out    <= 32'h0;
@@ -77,8 +77,8 @@ module id_ex (
     end
   end
 
-  always @(posedge clk or negedge rstn)begin
-    if(!rstn)
+  always @(posedge clk or posedge rst)begin
+    if(rst)
       periph_write_back <= 1'b0;
     else if(periph_hold_pc)
       periph_write_back <= 1'b1;

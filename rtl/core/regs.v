@@ -18,7 +18,7 @@
 # -----------------------------------------------------------------------------*/
 module regs (
     input  wire clk,
-    input  wire rstn,
+    input  wire rst,
     //寄存器使能
     input  wire reg_en,
     input  wire [4:0] reg_addr,
@@ -37,7 +37,7 @@ module regs (
 
   always @( *)
   begin
-    if(!rstn)
+    if(rst)
       rs1_data = 32'h0;
     else if (rs1_addr == 5'h0)
       rs1_data = 32'h0;
@@ -49,7 +49,7 @@ module regs (
 
   always @( *)
   begin
-    if(!rstn)
+    if(rst)
       rs2_data = 32'h0;
     else if (rs2_addr == 5'h0)
       rs2_data = 32'h0;
@@ -61,9 +61,9 @@ module regs (
 
   integer i;//计数器
 
-  always @(posedge clk or negedge rstn)
+  always @(posedge clk or posedge rst)
   begin
-    if (!rstn)
+    if (!rst)
     begin
       for (i = 0; i < 32; i = i + 1)
       begin

@@ -4,7 +4,7 @@ module tb_riscv_top;
 
 
 reg         clk;
-reg         rst_n;
+reg         rst;
 reg  [31:0] tmp;
 wire [31:0] x3;
 wire [31:0] x26;
@@ -20,7 +20,7 @@ assign x27 = tb_riscv_top.u_riscv_inst.regs_inst.regs[27];
 
 arcriscv u_riscv_inst (
     .clk  (clk  ),
-    .rstn (rst_n)   
+    .rst (rst)
 );
 
 // =============================================
@@ -33,10 +33,10 @@ always #5 clk = ~clk;
 // =============================================
 initial begin
     clk   = 1'b0;
-    rst_n = 1'b0;
+    rst = 1'b1;
     tmp   = 32'h0;
     #1000;
-    rst_n = 1'b1;
+    rst = 1'b0;
 end
 
 // =============================================

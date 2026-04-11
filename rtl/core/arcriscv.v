@@ -2,7 +2,7 @@
 
 module arcriscv (
     input  wire clk,
-    input  wire rstn
+    input  wire rst
   );
 
   //pc_cnt
@@ -179,7 +179,7 @@ module arcriscv (
 
   pc_cnt  pc_cnt_inst (
             .clk(clk),
-            .rstn(rstn),
+            .rst(rst),
             .jump_en(pc_jump_en),
             .jump_hold(pc_jump_hold),
             .jump_addr(pc_jump_addr),
@@ -196,7 +196,7 @@ module arcriscv (
 
   if_id  if_id_inst (
            .clk(clk),
-           .rstn(rstn),
+           .rst(rst),
            .instr_addr_in(if2id_instr_addr_in),
            .instr_in(if2id_instr_in),
            .instr_hold(if2id_instr_hold),
@@ -224,7 +224,7 @@ module arcriscv (
 
   regs  regs_inst (
           .clk(clk),
-          .rstn(rstn),
+          .rst(rst),
           .reg_en(regs_reg_en),
           .reg_addr(regs_reg_addr),
           .reg_data(regs_reg_data),
@@ -235,7 +235,7 @@ module arcriscv (
         );
   id_ex  id_ex_inst (
            .clk(clk),
-           .rstn(rstn),
+           .rst(rst),
            .instr_hold(id2ex_instr_hold),
            .instr_in(id2ex_instr_in),
            .instr_addr_in(id2ex_instr_addr_in),
@@ -286,7 +286,7 @@ module arcriscv (
  
   ram  ram_inst (
      .clk(clk),
-     .rst_n(rstn),
+     .rst(rst),
      .wr_en(ram_wr_en),
      .wr_addr(ram_wr_addr),
      .wr_data(ram_wr_data),

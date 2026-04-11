@@ -1,6 +1,6 @@
 module pc_cnt (
     input   wire          clk,
-    input   wire          rstn,
+    input   wire          rst,
     input   wire          jump_en,
     input   wire          jump_hold,
     input   wire  [31:0]  jump_addr,
@@ -8,9 +8,9 @@ module pc_cnt (
     output  reg   [31:0]  pc_pointer
 
   );
-  always @(posedge clk or negedge rstn)
+  always @(posedge clk or posedge rst)
   begin
-    if(!rstn)
+    if(rst)
       pc_pointer <= 32'h0;//复位置零
     else if (jump_en)
       pc_pointer <= jump_addr;//跳转地址

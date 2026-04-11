@@ -8,7 +8,7 @@ module pc_cnt_tb;
 
     // 信号声明
     reg clk;
-    reg rstn;
+    reg rst;
     reg jump_en;
     reg [31:0] jump_addr;
     wire [31:0] pc_pointer;
@@ -19,7 +19,7 @@ module pc_cnt_tb;
     // 实例化被测试模块
     pc_cnt u_pc_cnt (
         .clk(clk),
-        .rstn(rstn),
+        .rst(rst),
         .jump_en(jump_en),
         .jump_addr(jump_addr),
         .pc_pointer(pc_pointer)
@@ -34,11 +34,11 @@ module pc_cnt_tb;
     // 复位生成
     task apply_reset;
         begin
-            rstn = 0;
+            rst = 1;
             jump_en = 0;
             jump_addr = 0;
             #(CLK_PERIOD * 2);
-            rstn = 1;
+            rst = 0;
             @(negedge clk); // Wait for clock falling edge to avoid clock edge
             #1; // Small delay after clock edge
         end
@@ -123,13 +123,13 @@ module pc_cnt_tb;
         $display("\n--- Test 5: Reset During Operation ---");
         jump_en = 0;
         #(CLK_PERIOD/2);  // Half cycle later reset
-        rstn = 0;
+        rst = 1;
         #1; // Small delay after reset
         test_name_str = "PC should be 0 after reset during operation";
         check_result(32'h0);
 
         // Resume operation
-        rstn = 1;
+        rst = 0;
         @(negedge clk); // Wait for clock falling edge
         #1; // Small delay after clock edge
         test_name_str = "Continue increment after reset recovery";
@@ -172,8 +172,8 @@ module pc_cnt_tb;
 
     // Signal monitoring (optional)
     initial begin
-        $monitor("Time: %t ns | rstn=%b | jump_en=%b | jump_addr=%h | pc_pointer=%h",
-                 $time, rstn, jump_en, jump_addr, pc_pointer);
+        $monitor("Time: %t ns | rst=%b | jump_en=%b | jump_addr=%h | pc_pointer=%h",
+                 $time, rst, jump_en, jump_addr, pc_pointer);
     end
 
     // Simulation timeout protection
