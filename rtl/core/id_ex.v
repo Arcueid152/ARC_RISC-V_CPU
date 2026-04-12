@@ -1,7 +1,7 @@
 `include "defines.v"
 module id_ex (
     input wire clk,
-    input  wire rstn,
+    input  wire rst,
 
     input  wire instr_hold,
 
@@ -27,9 +27,9 @@ module id_ex (
   );
 
   //时序逻辑
-  always @(posedge clk or negedge rstn)
+  always @(posedge clk or posedge rst)
   begin
-    if(!rstn)
+    if(rst)
     begin
       instr_out         <= `INST_NOP;
       instr_addr_out    <= 32'h0;

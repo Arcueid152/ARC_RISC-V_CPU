@@ -4,23 +4,29 @@ module tb_riscv_top;
 
 
 reg         clk;
-reg         rst_n;
+reg         rst;
 reg  [31:0] tmp;
 wire [31:0] x3;
 wire [31:0] x26;
 wire [31:0] x27;
 
+wire [31:0] x29;
+wire [31:0] x30;
 
 
 assign x3  = tb_riscv_top.u_riscv_inst.regs_inst.regs[3];
 assign x26 = tb_riscv_top.u_riscv_inst.regs_inst.regs[26];
 assign x27 = tb_riscv_top.u_riscv_inst.regs_inst.regs[27];
+
+assign x29 = tb_riscv_top.u_riscv_inst.regs_inst.regs[29];
+assign x30 = tb_riscv_top.u_riscv_inst.regs_inst.regs[30];
+
 // =============================================
 // 实例化被测处理器
 
 arcriscv u_riscv_inst (
     .clk  (clk  ),
-    .rstn (rst_n)   
+    .rst (rst)   
 );
 
 // =============================================
@@ -33,10 +39,10 @@ always #5 clk = ~clk;
 // =============================================
 initial begin
     clk   = 1'b0;
-    rst_n = 1'b0;
+    rst = 1'b1;
     tmp   = 32'h0;
     #1000;
-    rst_n = 1'b1;
+    rst = 1'b0;
 end
 
 // =============================================
