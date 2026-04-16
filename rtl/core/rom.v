@@ -1,4 +1,4 @@
-`include "defines.v"
+`include "defines.vh"
 module rom (
     input      [31:0] instr_addr,
     output reg [31:0] instr_out

@@ -1,4 +1,4 @@
-`include "../rtl/core/defines.v"
+`include "../rtl/core/defines.vh"
 
 module tb_riscv_top;
 

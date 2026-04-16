@@ -5,7 +5,11 @@
       "Bash(vlog -work work rtl/core/defines.v)",
       "Bash(iverilog -v)",
       "Bash(iverilog -o test arcriscv.v)",
-      "Bash(iverilog -t null -I rtl/core tb/tb_arcriscv.v rtl/core/arcriscv.v rtl/core/pc_cnt.v rtl/core/if_id.v rtl/core/regs.v rtl/core/id_ex.v rtl/core/ram.v rtl/core/decode.v rtl/core/ex.v rtl/core/rom.v)"
+      "Bash(iverilog -t null -I rtl/core tb/tb_arcriscv.v rtl/core/arcriscv.v rtl/core/pc_cnt.v rtl/core/if_id.v rtl/core/regs.v rtl/core/id_ex.v rtl/core/ram.v rtl/core/decode.v rtl/core/ex.v rtl/core/rom.v)",
+      "Bash(awk '{print NR \"\\\\t\" $1}')",
+      "Bash(awk '{print \"---\" $1 \"---\"}')",
+      "Bash(awk -F '\\\\t' 'NF != 2 {print \"Line \" NR \" has \" NF \" fields\"} !/^[0-9]+\\\\t[0-9a-f]{8}$/ {print \"Line \" NR \" format mismatch\"}' dram.txt)",
+      "Bash(awk -F '\\\\t' 'NF != 2 {print \"Line \" NR \" has \" NF \" fields\"; exit 1} !/^[0-9]+\\\\t[0-9a-f]{8}$/ {print \"Line \" NR \" format mismatch\"; exit 1}' irom.txt)"
     ]
   }
 }

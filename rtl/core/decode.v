@@ -1,4 +1,4 @@
-`include "defines.v"
+`include "defines.vh"
 
 // 译码模块
 module decode (

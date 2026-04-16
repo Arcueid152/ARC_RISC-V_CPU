@@ -1,4 +1,4 @@
-`include "defines.v"
+`include "defines.vh"
 
 module arcriscv (
     input  wire clk,
