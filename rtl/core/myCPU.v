@@ -1,4 +1,4 @@
-`include "C:/Users/darre/Documents/ARC_RISC-V_CPU/rtl/core/defines.vh"
+`include "C:/Users/13227/Documents/2026_JXS/ARC_RISC-V_CPU/rtl/core/defines.vh"
 // ============================================================
 //  myCPU —— arcriscv 适配 student_top 的顶层包装
 //

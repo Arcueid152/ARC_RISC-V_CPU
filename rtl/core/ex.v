@@ -58,7 +58,7 @@ module ex (
     wb_en      = 1'b0;
     jump_en    = 1'b0;
     jump_hold  = 1'b0;
-    jump_addr  = 32'h0;
+    jump_addr  = 32'h8000_0000;
 
     case (opcode)
 

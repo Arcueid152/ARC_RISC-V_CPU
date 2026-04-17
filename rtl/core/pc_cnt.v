@@ -10,9 +10,9 @@ module pc_cnt (
   always @(posedge clk or posedge rst)
   begin
     if(rst)
-      pc_pointer <= 32'h0;//复位置零
+      pc_pointer <= 32'h8000_0000;//复位置零
     else if (jump_en)
-      pc_pointer <= jump_addr;//跳转地址
+      pc_pointer <= {4'b1000, jump_addr[27:0]};//跳转地址
     else
       pc_pointer <= pc_pointer + 32'h4;//每周期加四
   end

@@ -12,12 +12,12 @@ module if_id (
   always @(posedge clk or posedge rst)
     if(rst)
     begin
-      instr_addr_out <= 32'h0;
+      instr_addr_out <= 32'h8000_0000;
       instr_out <= `INST_NOP;
     end
     else if (instr_hold)
     begin
-      instr_addr_out <= 32'h0;
+      instr_addr_out <= 32'h8000_0000;
       instr_out <= `INST_NOP;
     end
 

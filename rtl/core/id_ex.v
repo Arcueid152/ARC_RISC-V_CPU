@@ -32,7 +32,7 @@ module id_ex (
     if(rst)
     begin
       instr_out         <= `INST_NOP;
-      instr_addr_out    <= 32'h0;
+      instr_addr_out    <= 32'h8000_0000;
       op1_out           <= 32'h0;
       op2_out           <= 32'h0;
       funct3_out        <= 3'h0;
@@ -43,7 +43,7 @@ module id_ex (
     else if(instr_hold)
     begin
       instr_out         <= `INST_NOP;
-      instr_addr_out    <= 32'h0;
+      instr_addr_out    <= 32'h8000_0000;
       op1_out           <= 32'h0;
       op2_out           <= 32'h0;
       funct3_out        <= 3'h0;
