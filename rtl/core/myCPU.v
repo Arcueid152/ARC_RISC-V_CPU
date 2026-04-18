@@ -1,4 +1,4 @@
-`include "C:/Users/13227/Documents/2026_JXS/ARC_RISC-V_CPU/rtl/core/defines.vh"
+`include "C:/Users/darre/Documents/ARC_RISC-V_CPU/rtl/core/defines.vh"
 // ============================================================
 //  myCPU —— arcriscv 适配 student_top 的顶层包装
 //
@@ -127,9 +127,18 @@ module myCPU (
   wire [4:0]  mw_rd;
   wire [31:0] mw_wb_data;
 
-  // --- 流水线停顿（暂时恒为 0，后续可扩展） ---
+  // --- Load-Use 冒险检测：EX 阶段是 lw，且目标寄存器与 ID 阶段源寄存器重合 ---
+  // ex_mem_read 为高表示 EX 阶段正在执行一条 Load 指令
+  // 若 Load 的目标寄存器（ex_rd_out）与 ID 阶段任意源操作数匹配，则必须停顿 1 拍
+  wire load_use_hazard;
+  assign load_use_hazard = ex_mem_read &&
+                           (ex_rd_out != 5'h0) &&
+                           ((ex_rd_out == decode_rs1_addr) ||
+                            (ex_rd_out == decode_rs2_addr));
+
+  // --- 流水线停顿 ---
   wire stall;
-  assign stall = 1'b0;
+  assign stall = load_use_hazard;
 
   // ========================================================
   //  perip 总线连接（替代原 ram_inst）
@@ -147,7 +156,7 @@ module myCPU (
 
   // pc_cnt 输入
   assign pc_jump_en   = ex_jump_en;
-  assign pc_jump_hold = ex_jump_hold;
+  assign pc_jump_hold = ex_jump_hold | stall;  //跳转气泡期间暂停 PC；stall：load-use 停顿时也需冻结 PC
   assign pc_jump_addr = ex_jump_addr;
 
   // IROM 取指地址
@@ -156,7 +165,7 @@ module myCPU (
   // if_id 输入
   assign if2id_instr_addr_in = pc_pointer;
   assign if2id_instr_in      = rom_instr_out;
-  assign if2id_instr_hold    = ex_jump_hold | stall;
+  assign if2id_instr_hold    = ex_jump_hold;   // 跳转冲刷：插 NOP（stall 时不冲刷）
 
   // decode 输入
   assign decode_instr_in = if2id_instr_out;
@@ -170,11 +179,13 @@ module myCPU (
   assign regs_reg_rs1_addr = decode_rs1_addr;
   assign regs_reg_rs2_addr = decode_rs2_addr;
 
-  // ---- EX→ID / MEM→ID Forwarding ----
-  wire fwd_A_rs1 = ex_wb_en      && (ex_rd_out  != 5'h0) && (ex_rd_out  == decode_rs1_addr);
-  wire fwd_B_rs1 = mem_wb_en_out && (mem_rd_out != 5'h0) && (mem_rd_out == decode_rs1_addr);
-  wire fwd_A_rs2 = ex_wb_en      && (ex_rd_out  != 5'h0) && (ex_rd_out  == decode_rs2_addr);
-  wire fwd_B_rs2 = mem_wb_en_out && (mem_rd_out != 5'h0) && (mem_rd_out == decode_rs2_addr);
+  // ---- EX->ID / MEM->ID Forwarding ----
+  // 注意：当 EX 阶段是 Load 指令（ex_mem_read=1）时，ALU 结果是内存地址而非读取数据，
+  //       不可转发给 ID 阶段。此情况由 load_use_hazard 检测并插入停顿处理。
+  wire fwd_A_rs1 = ex_wb_en      && !ex_mem_read && (ex_rd_out  != 5'h0) && (ex_rd_out  == decode_rs1_addr);
+  wire fwd_B_rs1 = mem_wb_en_out &&                 (mem_rd_out != 5'h0) && (mem_rd_out == decode_rs1_addr);
+  wire fwd_A_rs2 = ex_wb_en      && !ex_mem_read && (ex_rd_out  != 5'h0) && (ex_rd_out  == decode_rs2_addr);
+  wire fwd_B_rs2 = mem_wb_en_out &&                 (mem_rd_out != 5'h0) && (mem_rd_out == decode_rs2_addr);
 
   wire [31:0] fwd_rs1_val = fwd_A_rs1 ? ex_alu_result :
                              fwd_B_rs1 ? mem_wb_data   :
@@ -192,6 +203,8 @@ module myCPU (
                                            fwd_B_rs2 ? mem_wb_data   :
                                                         decode_op2_out)
                                         : decode_op2_out;
+
+
 
   // id_ex 输入
   assign id2ex_instr_hold    = ex_jump_hold | stall;
@@ -234,7 +247,8 @@ module myCPU (
     .rst            (cpu_rst),
     .instr_addr_in  (if2id_instr_addr_in),
     .instr_in       (if2id_instr_in),
-    .instr_hold     (if2id_instr_hold),
+    .instr_hold     (if2id_instr_hold),   // 跳转冲刷
+    .instr_stall    (stall),              // load-use 冻结（新增端口）
     .instr_addr_out (if2id_instr_addr_out),
     .instr_out      (if2id_instr_out)
   );
