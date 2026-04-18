@@ -13,6 +13,8 @@ module pc_cnt (
       pc_pointer <= 32'h8000_0000;//复位置零
     else if (jump_en)
       pc_pointer <= {4'b1000, jump_addr[27:0]};//跳转地址
+    else if (jump_hold)
+      pc_pointer <= pc_pointer;
     else
       pc_pointer <= pc_pointer + 32'h4;//每周期加四
   end
