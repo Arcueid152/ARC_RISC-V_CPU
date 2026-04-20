@@ -1,4 +1,4 @@
-`include "C:/Users/darre/Documents/ARC_RISC-V_CPU/rtl/core/defines.vh"
+`include "C:/Users/13227/Documents/2026_JXS/ARC_RISC-V_CPU/rtl/core/defines.vh"
 // ============================================================
 //  myCPU —— arcriscv 适配 student_top 的顶层包装
 //
@@ -327,6 +327,7 @@ module myCPU (
   ex_mem ex_mem_inst (
     .clk           (cpu_clk),
     .rst           (cpu_rst),
+    .stall         (stall), 
     .rd_in         (ex_rd_out),
     .alu_result_in (ex_alu_result),
     .store_data_in (ex_store_data),
