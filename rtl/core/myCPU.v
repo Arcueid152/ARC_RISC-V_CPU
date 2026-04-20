@@ -341,7 +341,8 @@ module myCPU (
     .ram_rd_data   (mem_ram_rd_data),
     .wb_en_out     (mem_wb_en_out),
     .rd_out        (mem_rd_out),
-    .wb_data       (mem_wb_data)
+    .wb_data       (mem_wb_data),
+    .stall         (stall)          // 新增：stall 时冻结组合逻辑输出
   );
 
   mem_wb mem_wb_inst (

@@ -3,6 +3,7 @@
 module ex_mem (
     input  wire        clk,
     input  wire        rst,
+    input  wire        stall,        // load-use 停顿：冻结组合逻辑输出（新增）
 
     // 来自 EX 阶段
     input  wire [4:0]  rd_in,
@@ -28,13 +29,40 @@ module ex_mem (
     output reg  [31:0] wb_data
 );
 
+
+ // -------------------------------------------------------
+  // 寄存器：保存上一拍的组合逻辑输出，stall 时用于冻结
   // -------------------------------------------------------
+  reg        ram_wr_en_r;
+  reg [31:0] ram_addr_r;
+  reg [31:0] ram_wr_data_r;
+ 
+  always @(posedge clk or posedge rst) begin
+    if (rst) begin
+      ram_wr_en_r   <= 1'b0;
+      ram_addr_r    <= 32'h0;
+      ram_wr_data_r <= 32'h0;
+    end else begin
+      ram_wr_en_r   <= mem_write_in;
+      ram_addr_r    <= alu_result_in;
+      ram_wr_data_r <= store_data_in;
+    end
+  end
+
   // 组合逻辑：提前驱动 RAM 端口（让 RAM 在本周期就能读出数据）
+  // stall 期间 EX 输出的是 NOP 气泡（地址=0，wr_en=0），
+  // 直接透传会导致 perip_addr 错误，因此 stall 时保持上一拍的值。
   // -------------------------------------------------------
   always @(*) begin
-    ram_wr_en   = mem_write_in;
-    ram_addr    = alu_result_in;   // 直接用 EX 算出的地址，无需等时钟沿
-    ram_wr_data = store_data_in;
+    if (stall) begin
+      ram_wr_en   = ram_wr_en_r;
+      ram_addr    = ram_addr_r;
+      ram_wr_data = ram_wr_data_r;
+    end else begin
+      ram_wr_en   = mem_write_in;
+      ram_addr    = alu_result_in;
+      ram_wr_data = store_data_in;
+    end
   end
 
   // -------------------------------------------------------
