@@ -89,7 +89,7 @@ module decode (
         rs1_addr = 5'h0;                        // 无需源寄存器
         rs2_addr = 5'h0;
         op1_out  = 32'h0;                       // 操作数1将在后续阶段添加PC值
-        op2_out  = {4'b1000, {7{imm_j[20]}}, imm_j};    // 符号扩展的21位立即数（实际为20位左移1位）
+        op2_out  = {{11{imm_j[20]}}, imm_j};    // 符号扩展的21位立即数（实际为20位左移1位）
         reg_addr = rd;                          // 返回地址存入目标寄存器
       end
 
@@ -98,7 +98,7 @@ module decode (
         rs1_addr = rs1;                         // 基址寄存器
         rs2_addr = 5'h0;
         op1_out  = rs1_data;                    // 基址寄存器的值
-        op2_out  = {4'b1000, {16{imm_i[11]}}, imm_i};    // 符号扩展的12位立即数偏移量
+        op2_out  = {{20{imm_i[11]}}, imm_i};    // 符号扩展的12位立即数偏移量
         reg_addr = rd;                          // 返回地址存入目标寄存器
       end
 
