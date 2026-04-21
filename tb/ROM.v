@@ -9,7 +9,7 @@ module ROM (
   // 初始化：从hex文件加载指令
   initial
   begin
-    $readmemh("C:/Users/13227/Documents/2026_JXS/ARC_RISC-V_CPU/tests/txt/rv32ui-p-jalr.txt", rom_mem);
+    $readmemh("C:/Users/13227/Documents/2026_JXS/ARC_RISC-V_CPU/tests/rv32i_test/c_instr_stream.txt", rom_mem);
   end
 
   always @(*)
