@@ -135,28 +135,28 @@ ID  ID_inst (
   );
 
 Forwarding  Forwarding_inst (
-    .rs1_addr(rs1_addr),
-    .rs2_addr(rs2_addr),
-    .rs1_data(rs1_data),
-    .rs2_data(rs2_data),
-    .EX_RegWA(EX_RegWA),
-    .EX_RegWE(EX_RegWE),
-    .EX_RegDA(EX_RegDA),
-    .MEM_RegWA(MEM_RegWA),
-    .MEM_RegWE(MEM_RegWE),
-    .MEM_RegDA(MEM_RegDA),
-    .rs1_addr_out(rs1_addr_out),
-    .rs2_addr_out(rs2_addr_out),
-    .rs1_data_out(rs1_data_out),
-    .rs2_data_out(rs2_data_out)
+    .rs1_addr(ID_rs1_addr),
+    .rs2_addr(ID_rs2_addr),
+    .rs1_data(RF_rs1_data),
+    .rs2_data(RF_rs2_data),
+    .EX_RegWA(EX_reg_addr),
+    .EX_RegWE(EX_reg_en),
+    .EX_RegDA(EX_reg_data),
+    .MEM_RegWA(EX2MEM_reg_addr),
+    .MEM_RegWE(EX2MEM_reg_en),
+    .MEM_RegDA(MemCtrl_reg_data),
+    .rs1_addr_out(Forwarding_rs1_addr_out),
+    .rs2_addr_out(Forwarding_rs2_addr_out),
+    .rs1_data_out(Forwarding_rs1_data_out),
+    .rs2_data_out(Forwarding_rs2_data_out)
   );
 
 RegFile  RegFile_inst (
     .clk(cpu_clk),
     .rst(cpu_rst),
-    .reg_en(reg_en),
-    .reg_addr(reg_addr),
-    .reg_data(reg_data),
+    .reg_en(MEM2WB_reg_en),
+    .reg_addr(MEM2WB_reg_addr),
+    .reg_data(MEM2WB_reg_data),
     .rs1_addr(Forwarding_rs1_addr_out),
     .rs2_addr(Forwarding_rs2_addr_out),
     .rs1_data(RF_rs1_data),
