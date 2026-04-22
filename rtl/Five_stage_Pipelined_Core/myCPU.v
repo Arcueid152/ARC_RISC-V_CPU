@@ -58,6 +58,7 @@ module myCPU (
   wire         EX_jump_en;
   wire         EX_jump_hold;
   wire  [31:0] EX_jump_addr;
+  wire         EXMemoryRE;
 
   //EX2MEM_
   wire [31:0]  EX2MEM_perip_addr;    // 读写地址
@@ -83,6 +84,11 @@ module myCPU (
   wire [31:0] MEM2WB_reg_data;       // 写寄存器数据
   wire        MEM2WB_reg_en;         // 是否要写通用寄存器
   wire [31:0] MEM2WB_reg_addr;   // 写通用寄存器地址
+
+  //Ctrl_
+  wire  PCStall;          // 阻塞PC
+  wire  IFStall;          // 阻塞IF2ID
+  wire  IDFlush;            // 清空ID2EX
   
 
 IF  IF_inst (
@@ -91,7 +97,7 @@ IF  IF_inst (
     .jump_en(jump_en),
     .jump_hold(jump_hold),
     .jump_addr(jump_addr),
-    .stall(stall),
+    .stall(PCStall),
     .pc_pointer(pc_pointer)
   );
 
@@ -101,7 +107,7 @@ IF2ID  IF2ID_inst (
     .instr_addr_in(pc_pointer),
     .instr_in(irom_data),
     .jump_hold(jump_hold),
-    .stall(stall),
+    .stall(IFStall),
     .instr_addr_out(IF2ID_instr_addr_out),
     .instr_out(IF2ID_instr_out)
   );
@@ -136,7 +142,7 @@ ID2EX  ID2EX_inst (
     .clk(cpu_clk),
     .rst(cpu_rst),
     .jump_hold(jump_hold),
-    .flush(flush),
+    .flush(IDFlush),
     .instr_in(IF2ID_instr_out),
     .instr_addr_in(IF2ID_instr_addr_out),
     .op1_in(ID_op1_out),
@@ -173,7 +179,8 @@ EX  EX_inst (
     .reg_addr(EX_reg_addr),
     .jump_en(EX_jump_en),
     .jump_hold(EX_jump_hold),
-    .jump_addr(EX_jump_addr)
+    .jump_addr(EX_jump_addr),
+    .EXMemoryRE(EXMemoryRE)
   );
 
   EX2MEM  EX2MEM_inst (
@@ -212,6 +219,21 @@ EX  EX_inst (
     .reg_data(MEM2WB_reg_data),
     .reg_en(MEM2WB_reg_en),
     .reg_addr(MEM2WB_reg_addr)
+  );
+
+  Ctrl  Ctrl_inst (
+    .clk(cpu_clk),
+    .rst(cpu_rst),
+    .Reg1RA(ID_rs1_addr),
+    .Reg2RA(ID_rs2_addr),
+    .RegWA(EX_reg_addr),
+    .EXRegWriteSrc(EX_reg_en),
+    .EXMemoryRE(),
+    .MEMRegWA(EX2MEM_reg_addr),
+    .MEMRegWE(EX2MEM_reg_en),
+    .PCStall(PCStall),
+    .IFStall(IFStall),
+    .IDFlush(IDFlush)
   );
 
 endmodule

@@ -21,7 +21,9 @@ module EX (
 
     output reg         jump_en,
     output reg         jump_hold,
-    output reg  [31:0] jump_addr
+    output reg  [31:0] jump_addr,
+
+    output reg         EXMemoryRE
 );
 
   function [31:0] arith_shr;
@@ -51,6 +53,7 @@ module EX (
     reg_data   = 32'h0000_0000;
     reg_en     = 1'b0;
     reg_addr   = reg_addr_in;
+    EXMemoryRE = 1'b0;
     case (opcode)
       `INST_TYPE_I: begin
         reg_en = 1'b1;
@@ -73,6 +76,7 @@ module EX (
         reg_en      = 1'b1;
         perip_mask  = funct3[1:0];
         perip_addr  = op1 + op2;
+        EXMemoryRE = 1'b1
       end
 
       `INST_TYPE_S: begin
