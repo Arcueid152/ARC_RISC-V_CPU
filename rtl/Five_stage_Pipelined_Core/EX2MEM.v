@@ -13,6 +13,7 @@ module EX2MEM (
 
     //ID2EX阶段的funct3
     input  wire [2:0]  funct3_in,
+    input   wire       EXMemoryRE,
 
     //OUT
     output   reg [31:0]  perip_addr,    // 读写地址
@@ -24,7 +25,8 @@ module EX2MEM (
     output reg       reg_en,         // 是否要写通用寄存器
     output reg[31:0] reg_addr,   // 写通用寄存器地址
     
-    output  reg [2:0]  funct3
+    output  reg [2:0]  funct3,
+    output  reg        EXMemoryRE_out
 );
 
 always @(posedge clk or posedge rst) begin

@@ -76,7 +76,7 @@ module EX (
         reg_en      = 1'b1;
         perip_mask  = funct3[1:0];
         perip_addr  = op1 + op2;
-        EXMemoryRE = 1'b1
+        EXMemoryRE = 1'b1;
       end
 
       `INST_TYPE_S: begin

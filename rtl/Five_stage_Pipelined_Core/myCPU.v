@@ -32,6 +32,12 @@ module myCPU (
   wire     [6:0]   ID_funct7;    
   wire     [6:0]   ID_opcode;
 
+  //Forwarding_
+  wire     [4:0] Forwarding_rs1_addr_out;        //ID2EX传入rs1地址
+  wire     [4:0] Forwarding_rs2_addr_out;        //ID2EX传入rs2地址
+  wire     [31:0]  Forwarding_rs1_data_out;  // 源寄存器1的数据
+  wire     [31:0]  Forwarding_rs2_data_out;  // 源寄存器2的数据
+
   //RegFile
   wire [31:0] RF_rs1_data;
   wire [31:0] RF_rs2_data;
@@ -71,6 +77,8 @@ module myCPU (
   wire[31:0] EX2MEM_reg_addr;   // 写通用寄存器地址
     
   wire [2:0]  EX2MEM_funct3;
+  wire        EXMemoryRE_out;
+
 
   //MemCtrl_
   wire [31:0] MemCtrl_reg_data;
@@ -126,14 +134,31 @@ ID  ID_inst (
     .opcode(ID_opcode)
   );
 
+  ForwardingUnit  ForwardingUnit_inst (
+    .rs1_addr(ID_rs1_addr),
+    .rs2_addr(ID_rs2_addr),
+    .rs1_data(RF_rs1_data),
+    .rs2_data(RF_rs1_data),
+    .EX_RegWA(EX_reg_addr),
+    .EX_RegWE(EX_reg_en),
+    .EX_RegDA(EX_reg_data),
+    .MEM_RegWA(EX2MEM_reg_addr),
+    .MEM_RegWE(EX2MEM_reg_en),
+    .MEM_RegDA(EX2MEM_reg_data),
+    .rs1_addr_out(rs1_addr_out),
+    .rs2_addr_out(rs2_addr_out),
+    .rs1_data_out(rs1_data_out),
+    .rs2_data_out(rs2_data_out)
+  );
+
 RegFile  RegFile_inst (
     .clk(cpu_clk),
     .rst(cpu_rst),
     .reg_en(reg_en),
     .reg_addr(reg_addr),
     .reg_data(reg_data),
-    .rs1_addr(ID_rs1_addr),
-    .rs2_addr(ID_rs2_addr),
+    .rs1_addr(Forwarding_rs1_addr_out),
+    .rs2_addr(Forwarding_rs2_addr_out),
     .rs1_data(RF_rs1_data),
     .rs2_data(RF_rs2_data)
   );
@@ -194,6 +219,7 @@ EX  EX_inst (
     .reg_en_in(EX_reg_en_in),
     .reg_addr_in(EX_reg_addr_in),
     .funct3_in(ID2EX_funct3_out),
+    .EXMemoryRE(EXMemoryRE),
     .perip_addr(EX2MEM_perip_addr),
     .perip_wen(EX2MEM_perip_wen),
     .perip_mask(EX2MEM_perip_mask),
@@ -201,12 +227,15 @@ EX  EX_inst (
     .reg_data(EX2MEM_reg_data),
     .reg_en(EX2MEM_reg_en),
     .reg_addr(EX2MEM_reg_addr),
-    .funct3(EX2MEM_funct3)
+    .funct3(EX2MEM_funct3),
+    .EXMemoryRE_out(EXMemoryRE_out)
   );
 
   MemCtrl  MemCtrl_inst (
     .funct3(EX2MEM_funct3),
+    .EXMemoryRE(EXMemoryRE_out),
     .perip_rdata(perip_rdata),
+    .reg_data_in(EX2MEM_reg_data),
     .reg_data(MemCtrl_reg_data)
   );
 
@@ -222,15 +251,11 @@ EX  EX_inst (
   );
 
   Ctrl  Ctrl_inst (
-    .clk(cpu_clk),
-    .rst(cpu_rst),
     .Reg1RA(ID_rs1_addr),
     .Reg2RA(ID_rs2_addr),
     .RegWA(EX_reg_addr),
     .EXRegWriteSrc(EX_reg_en),
-    .EXMemoryRE(),
-    .MEMRegWA(EX2MEM_reg_addr),
-    .MEMRegWE(EX2MEM_reg_en),
+    .EXMemoryRE(EXMemoryRE),
     .PCStall(PCStall),
     .IFStall(IFStall),
     .IDFlush(IDFlush)
