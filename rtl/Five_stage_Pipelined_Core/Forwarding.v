@@ -1,4 +1,4 @@
-module ForwardingUnit (
+module Forwarding (
 
     input [4:0] rs1_addr,         //ID传入rs1地址
     input [4:0] rs2_addr,         //ID传入rs2地址
