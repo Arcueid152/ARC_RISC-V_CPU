@@ -9,7 +9,7 @@ module EX2MEM (
     //RegFile
     input wire [31:0] reg_data_in,       // 写寄存器数据
     input wire        reg_en_in,         // 是否要写通用寄存器
-    input wire [31:0] reg_addr_in,   // 写通用寄存器地址
+    input wire [4:0] reg_addr_in,   // 写通用寄存器地址
 
     //ID2EX阶段的funct3
     input  wire [2:0]  funct3_in,
@@ -23,7 +23,7 @@ module EX2MEM (
 
     output reg[31:0] reg_data,       // 写寄存器数据
     output reg       reg_en,         // 是否要写通用寄存器
-    output reg[31:0] reg_addr,   // 写通用寄存器地址
+    output reg[4:0] reg_addr,   // 写通用寄存器地址
     
     output  reg [2:0]  funct3,
     output  reg        EXMemoryRE_out
@@ -38,7 +38,7 @@ always @(posedge clk or posedge rst) begin
 
         reg_data    <= 32'h0000_0000;  
         reg_en      <= 1'b0;
-        reg_addr    <= 32'h0000_0000;
+        reg_addr    <= 5'b0;
         funct3      <= 3'b0;
     end
     else begin

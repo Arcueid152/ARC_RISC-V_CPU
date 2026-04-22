@@ -8,7 +8,6 @@ module EX (
     input  wire [6:0]  funct7,
     input  wire [6:0]  opcode,
 
-    input wire      [4:0]   reg_addr_in,   // 目标寄存器地址
 
     output reg [31:0]  perip_addr,    // 读写地址
     output reg         perip_wen,     // 写使能（高有效）
@@ -17,7 +16,6 @@ module EX (
 
     output reg[31:0] reg_data,       // 写寄存器数据
     output reg       reg_en,         // 是否要写通用寄存器
-    output reg[31:0] reg_addr,   // 写通用寄存器地址
 
     output reg         jump_en,
     output reg         jump_hold,
@@ -52,7 +50,6 @@ module EX (
 
     reg_data   = 32'h0000_0000;
     reg_en     = 1'b0;
-    reg_addr   = reg_addr_in;
     EXMemoryRE = 1'b0;
     case (opcode)
       `INST_TYPE_I: begin

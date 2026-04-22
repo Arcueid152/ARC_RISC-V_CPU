@@ -60,7 +60,7 @@ module myCPU (
 
   wire[31:0] EX_reg_data;       // 写寄存器数据
   wire       EX_reg_en;         // 是否要写通用寄存器
-  wire[31:0] EX_reg_addr;   // 写通用寄存器地址
+
   wire         EX_jump_en;
   wire         EX_jump_hold;
   wire  [31:0] EX_jump_addr;
@@ -74,7 +74,7 @@ module myCPU (
 
   wire[31:0] EX2MEM_reg_data;       // 写寄存器数据
   wire       EX2MEM_reg_en;         // 是否要写通用寄存器
-  wire[31:0] EX2MEM_reg_addr;   // 写通用寄存器地址
+  wire[4:0] EX2MEM_reg_addr;   // 写通用寄存器地址
     
   wire [2:0]  EX2MEM_funct3;
   wire        EXMemoryRE_out;
@@ -91,7 +91,7 @@ module myCPU (
   //MEM2WB_
   wire [31:0] MEM2WB_reg_data;       // 写寄存器数据
   wire        MEM2WB_reg_en;         // 是否要写通用寄存器
-  wire [31:0] MEM2WB_reg_addr;   // 写通用寄存器地址
+  wire [4:0] MEM2WB_reg_addr;   // 写通用寄存器地址
 
   //Ctrl_
   wire  PCStall;          // 阻塞PC
@@ -102,9 +102,9 @@ module myCPU (
 IF  IF_inst (
     .clk(cpu_clk),
     .rst(cpu_rst),
-    .jump_en(jump_en),
-    .jump_hold(jump_hold),
-    .jump_addr(jump_addr),
+    .jump_en(EX_jump_en),
+    .jump_hold(EX_jump_hold),
+    .jump_addr(EX_jump_addr),
     .stall(PCStall),
     .pc_pointer(pc_pointer)
   );
@@ -114,7 +114,7 @@ IF2ID  IF2ID_inst (
     .rst(cpu_rst),
     .instr_addr_in(pc_pointer),
     .instr_in(irom_data),
-    .jump_hold(jump_hold),
+    .jump_hold(EX_jump_hold),
     .stall(IFStall),
     .instr_addr_out(IF2ID_instr_addr_out),
     .instr_out(IF2ID_instr_out)
@@ -122,8 +122,8 @@ IF2ID  IF2ID_inst (
 
 ID  ID_inst (
     .instr_in(IF2ID_instr_out),
-    .rs1_data(RF_rs1_data),
-    .rs2_data(RF_rs2_data),
+    .rs1_data(Forwarding_rs1_data_out),
+    .rs2_data(Forwarding_rs2_data_out),
     .rs1_addr(ID_rs1_addr),
     .rs2_addr(ID_rs2_addr),
     .reg_addr(ID_reg_addr),
@@ -139,7 +139,7 @@ Forwarding  Forwarding_inst (
     .rs2_addr(ID_rs2_addr),
     .rs1_data(RF_rs1_data),
     .rs2_data(RF_rs2_data),
-    .EX_RegWA(EX_reg_addr),
+    .EX_RegWA(ID2EX_reg_addr_out),
     .EX_RegWE(EX_reg_en),
     .EX_RegDA(EX_reg_data),
     .MEM_RegWA(EX2MEM_reg_addr),
@@ -166,7 +166,7 @@ RegFile  RegFile_inst (
 ID2EX  ID2EX_inst (
     .clk(cpu_clk),
     .rst(cpu_rst),
-    .jump_hold(jump_hold),
+    .jump_hold(EX_jump_hold),
     .flush(IDFlush),
     .instr_in(IF2ID_instr_out),
     .instr_addr_in(IF2ID_instr_addr_out),
@@ -194,14 +194,14 @@ EX  EX_inst (
     .funct3(ID2EX_funct3_out),
     .funct7(ID2EX_funct7_out),
     .opcode(ID2EX_opcode_out),
-    .reg_addr_in(ID2EX_reg_addr_out),
+
     .perip_addr(EX_perip_addr),
     .perip_wen(EX_perip_wen),
     .perip_mask(EX_perip_mask),
     .perip_wdata(EX_perip_wdata),
     .reg_data(EX_reg_data),
     .reg_en(EX_reg_en),
-    .reg_addr(EX_reg_addr),
+
     .jump_en(EX_jump_en),
     .jump_hold(EX_jump_hold),
     .jump_addr(EX_jump_addr),
@@ -211,13 +211,13 @@ EX  EX_inst (
   EX2MEM  EX2MEM_inst (
     .clk(cpu_clk),
     .rst(cpu_rst),
-    .perip_addr_in(EX_perip_addr_in),
-    .perip_wen_in(EX_perip_wen_in),
-    .perip_mask_in(EX_perip_mask_in),
-    .perip_wdata_in(EX_perip_wdata_in),
-    .reg_data_in(EX_reg_data_in),
-    .reg_en_in(EX_reg_en_in),
-    .reg_addr_in(EX_reg_addr_in),
+    .perip_addr_in(EX_perip_addr),
+    .perip_wen_in(EX_perip_wen),
+    .perip_mask_in(EX_perip_mask),
+    .perip_wdata_in(EX_perip_wdata),
+    .reg_data_in(EX_reg_data),
+    .reg_en_in(EX_reg_en),
+    .reg_addr_in(ID2EX_reg_addr_out),
     .funct3_in(ID2EX_funct3_out),
     .EXMemoryRE(EXMemoryRE),
     .perip_addr(EX2MEM_perip_addr),
@@ -244,7 +244,7 @@ EX  EX_inst (
     .rst(cpu_rst),
     .reg_data_in(MemCtrl_reg_data),
     .reg_en_in(EX2MEM_reg_en),
-    .reg_addr_in(EX_reg_addr_in),
+    .reg_addr_in(EX2MEM_reg_addr),
     .reg_data(MEM2WB_reg_data),
     .reg_en(MEM2WB_reg_en),
     .reg_addr(MEM2WB_reg_addr)
@@ -253,8 +253,8 @@ EX  EX_inst (
   Ctrl  Ctrl_inst (
     .Reg1RA(ID_rs1_addr),
     .Reg2RA(ID_rs2_addr),
-    .RegWA(EX_reg_addr),
-    .EXRegWriteSrc(EX_reg_en),
+    .RegWA(ID2EX_reg_addr_out),
+    .EXRegEn(EX_reg_en),
     .EXMemoryRE(EXMemoryRE),
     .PCStall(PCStall),
     .IFStall(IFStall),

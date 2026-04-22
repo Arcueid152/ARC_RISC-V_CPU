@@ -9,7 +9,8 @@ module tb_myCPU;
   wire [31:0] perip_wdata;
   wire [31:0] irom_addr;
   wire [31:0] irom_data;
-
+  wire [31:0] perip_rdata;
+  
   myCPU  myCPU_inst (
     .cpu_rst(cpu_rst),
     .cpu_clk(cpu_clk),
