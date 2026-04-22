@@ -3,6 +3,7 @@ module ID2EX (
     input  wire rst,
 
     input  wire jump_hold,
+    input  wire flush,
 
     input wire [31:0] instr_in,
     input wire [31:0] instr_addr_in,
@@ -12,7 +13,7 @@ module ID2EX (
 
     input wire [2:0]   funct3_in,     // 功能码3位
     input wire [6:0]   funct7_in,     // 功能码7位
-    input wire      [4:0]   reg_addr_in,
+    input wire [4:0]   reg_addr_in,
 
     output reg [31:0] instr_out,
     output reg [31:0] instr_addr_out,
@@ -39,7 +40,7 @@ module ID2EX (
       opcode_out        <= 7'h0;
       reg_addr_out      <= 5'b0;
     end
-    else if(jump_hold)
+    else if(jump_hold || flush)
     begin
       instr_out         <= 32'h0000_0000;
       instr_addr_out    <= 32'h8000_0000;
@@ -59,7 +60,7 @@ module ID2EX (
       funct3_out        <=      funct3_in;
       funct7_out        <=      funct7_in;
       opcode_out        <=      opcode_in;
-      reg_addr_out          <= reg_addr_in;
+      reg_addr_out      <=      reg_addr_in;
     end
   end
 endmodule

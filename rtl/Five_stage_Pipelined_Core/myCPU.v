@@ -70,6 +70,7 @@ IF  IF_inst (
     .jump_en(jump_en),
     .jump_hold(jump_hold),
     .jump_addr(jump_addr),
+    .stall(stall),
     .pc_pointer(pc_pointer)
   );
 
@@ -79,6 +80,7 @@ IF2ID  IF2ID_inst (
     .instr_addr_in(pc_pointer),
     .instr_in(irom_data),
     .jump_hold(jump_hold),
+    .stall(stall),
     .instr_addr_out(IF2ID_instr_addr_out),
     .instr_out(IF2ID_instr_out)
   );
@@ -113,6 +115,7 @@ ID2EX  ID2EX_inst (
     .clk(cpu_clk),
     .rst(cpu_rst),
     .jump_hold(jump_hold),
+    .stall(stall),
     .instr_in(IF2ID_instr_out),
     .instr_addr_in(IF2ID_instr_addr_out),
     .op1_in(ID_op1_out),
@@ -151,6 +154,44 @@ EX  EX_inst (
     .jump_en(jump_en),
     .jump_hold(jump_hold),
     .jump_addr(jump_addr)
+  );
+
+  EX2MEM  EX2MEM_inst (
+    .clk(cpu_clk),
+    .rst(cpu_rst),
+    .perip_addr_in(perip_addr_in),
+    .perip_wen_in(perip_wen_in),
+    .perip_mask_in(perip_mask_in),
+    .perip_wdata_in(perip_wdata_in),
+    .reg_data_in(reg_data_in),
+    .reg_en_in(reg_en_in),
+    .reg_addr_in(reg_addr_in),
+    .funct3_in(funct3_in),
+    .perip_addr(perip_addr),
+    .perip_wen(perip_wen),
+    .perip_mask(perip_mask),
+    .perip_wdata(perip_wdata),
+    .reg_data(reg_data),
+    .reg_en(reg_en),
+    .reg_addr(reg_addr),
+    .funct3(funct3)
+  );
+
+  MemCtrl  MemCtrl_inst (
+    .funct3(funct3),
+    .perip_rdata(perip_rdata),
+    .reg_data(reg_data)
+  );
+
+  MEM2WB  MEM2WB_inst (
+    .clk(cpu_clk),
+    .rst(cpu_rst),
+    .reg_data_in(reg_data_in),
+    .reg_en_in(reg_en_in),
+    .reg_addr_in(reg_addr_in),
+    .reg_data(reg_data),
+    .reg_en(reg_en),
+    .reg_addr(reg_addr)
   );
 
 endmodule

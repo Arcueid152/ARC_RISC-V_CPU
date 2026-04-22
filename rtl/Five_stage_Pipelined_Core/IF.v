@@ -4,6 +4,7 @@ module IF (
     input   wire          jump_en,
     input   wire          jump_hold,
     input   wire  [31:0]  jump_addr,
+    input  wire           stall,
     output  reg   [31:0]  pc_pointer
 
   );
@@ -14,7 +15,7 @@ module IF (
       pc_pointer <= 32'h8000_0000;//复位
     else if (jump_en)
       pc_pointer <= {4'b1000, jump_addr[27:0]};//跳转地址
-    else if (jump_hold)
+    else if (jump_hold || stall)
       pc_pointer <= pc_pointer;
     else
       pc_pointer <= pc_pointer + 32'h4;//每周期加四
