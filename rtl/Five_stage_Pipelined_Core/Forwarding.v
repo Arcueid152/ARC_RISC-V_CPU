@@ -22,30 +22,30 @@ module Forwarding (
     output  reg     [31:0]  rs2_data_out          // 输出给ID rs2的正确data
 );
 
-     always @(*) begin
-         // default
-         forward_sel1 = 2'b00;
-         forward_sel2 = 2'b00;
+    //  always @(*) begin
+    //      // default
+    //      forward_sel1 = 2'b00;
+    //      forward_sel2 = 2'b00;
         
-         // ========== MEM → EX ==========
-         // 如果 MEM 阶段指令要写寄存器，且目的地址等于 EX 的 rs1，且不是 x0
-         if (MEM_RegWE && (MEM_RegWA != 5'b0) && (MEM_RegWA == EXReg1RA)) begin
-             forward_sel1 = 2'b10;   // 从 MEM 结果转发
-         end
+    //      // ========== MEM → EX ==========
+    //      // 如果 MEM 阶段指令要写寄存器，且目的地址等于 EX 的 rs1，且不是 x0
+    //      if (MEM_RegWE && (MEM_RegWA != 5'b0) && (MEM_RegWA == EXReg1RA)) begin
+    //          forward_sel1 = 2'b10;   // 从 MEM 结果转发
+    //      end
         
-         if (MEM_RegWE && (MEM_RegWA != 5'b0) && (MEM_RegWA == EXReg2RA)) begin
-             forward_sel2 = 2'b10;   // 从 MEM 结果转发
-         end
+    //      if (MEM_RegWE && (MEM_RegWA != 5'b0) && (MEM_RegWA == EXReg2RA)) begin
+    //          forward_sel2 = 2'b10;   // 从 MEM 结果转发
+    //      end
         
-         // ========== WB → EX  ==========
-         // 仅在 MEM 没有转发时才生效
-         if (!forward_sel1 && WB_RegWE && (WB_RegWA != 5'b0) && (WB_RegWA == EXReg1RA)) begin
-             forward_sel1 = 2'b01;   // 从 WB 结果转发
-         end
+    //      // ========== WB → EX  ==========
+    //      // 仅在 MEM 没有转发时才生效
+    //      if (!forward_sel1 && WB_RegWE && (WB_RegWA != 5'b0) && (WB_RegWA == EXReg1RA)) begin
+    //          forward_sel1 = 2'b01;   // 从 WB 结果转发
+    //      end
         
-         if (!forward_sel2 && WB_RegWE && (WB_RegWA != 5'b0) && (WB_RegWA == EXReg2RA)) begin
-             forward_sel2 = 2'b01;   // 从 WB 结果转发
-         end
-     end
+    //      if (!forward_sel2 && WB_RegWE && (WB_RegWA != 5'b0) && (WB_RegWA == EXReg2RA)) begin
+    //          forward_sel2 = 2'b01;   // 从 WB 结果转发
+    //      end
+    //  end
 
 endmodule
