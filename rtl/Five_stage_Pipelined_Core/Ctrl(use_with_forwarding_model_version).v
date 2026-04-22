@@ -1,33 +1,26 @@
 module Ctrl (
 
-    input clk,
-    input rst,
     // 来自 ID 
     input [4:0] Reg1RA,            // 源寄存器1地址
     input [4:0] Reg2RA,            // 源寄存器2地址
     
     // 来自 EX
     input [4:0] RegWA,             // EX阶段指令的目的寄存器
-    input       EXRegWriteSrc,     // EX阶段指令是否写寄存器
+    input       EXRegEn,     // EX阶段指令是否写寄存器
     input       EXMemoryRE,        // EX阶段指令是否是L型指令
     
-    // 来自 MEM 
-    input [4:0] MEMRegWA,          // MEM阶段指令的目的寄存器
-    input       MEMRegWE,          // MEM阶段指令是否写寄存器
     
     // 输出控制信号
     output reg  PCStall,           // 阻塞PC
     output reg  IFStall,           // 阻塞IF2ID
-    //output reg  IFFlush,           // 清空IF2ID   （好像没用到？）
     output reg  IDFlush            // 清空ID2EX
 );
 
-    reg   [1:0]  stall_cnt;                //load_use专用计数
 
     // ========== Load-Use冒险检测 ==========
 
     wire load_use_hazard = EXMemoryRE &&           // EX是加载指令
-                           EXRegWriteSrc &&          // 要写寄存器
+                           EXRegEn &&          // 要写寄存器
                            ((Reg1RA == RegWA) || (Reg2RA == RegWA)) &&
                            (RegWA != 5'b0);         // rd不是x0
     

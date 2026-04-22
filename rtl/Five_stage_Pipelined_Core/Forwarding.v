@@ -4,15 +4,17 @@ module ForwardingUnit (
     input [4:0] rs2_addr,         //ID2EX传入rs2地址
     input  wire     [4:0]   rs1_data,    
     input  wire     [4:0]   rs2_data,    
-    // 来自MEM 
-    input [4:0] MEM_RegWA,        // MEM阶段指令的目的寄存器
-    input       MEM_RegWE,        // MEM阶段指令是否写寄存器
-    input       MEM_RegDA,        // MEM阶段指令是否写寄存器
     
     // 来自EX 
     input [4:0] EX_RegWA,         // WB阶段指令的目的寄存器
     input       EX_RegWE ,         // WB阶段指令是否 写寄存器   
     input       EX_RegDA ,         // WB阶段指令是否 写寄存器   
+
+    // 来自MEM 
+    input [4:0] MEM_RegWA,        // MEM阶段指令的目的寄存器
+    input       MEM_RegWE,        // MEM阶段指令是否写寄存器
+    input       MEM_RegDA,        // MEM阶段指令是否写寄存器
+
     
     output reg  [4:0] rs1_addr_out,         //ID2EX传入rs1地址
     output reg  [4:0] rs2_addr_out,         //ID2EX传入rs2地址
