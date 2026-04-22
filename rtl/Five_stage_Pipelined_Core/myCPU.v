@@ -52,16 +52,37 @@ module myCPU (
   wire [1:0]   EX_perip_mask;    // 传输宽度：00=byte 01=half 10=word
   wire [31:0]  EX_perip_wdata;   // 写数据
 
-  wire[31:0] reg_data;       // 写寄存器数据
-  wire       reg_en;         // 是否要写通用寄存器
-  wire[31:0] reg_addr;   // 写通用寄存器地址
-  wire         jump_en;
-  wire         jump_hold;
-  wire  [31:0] jump_addr;
-  assign perip_addr = EX_perip_addr;
-  assign perip_wen = EX_perip_wen;
-  assign perip_mask = EX_perip_mask;
-  assign perip_wdata = EX_perip_wdata;
+  wire[31:0] EX_reg_data;       // 写寄存器数据
+  wire       EX_reg_en;         // 是否要写通用寄存器
+  wire[31:0] EX_reg_addr;   // 写通用寄存器地址
+  wire         EX_jump_en;
+  wire         EX_jump_hold;
+  wire  [31:0] EX_jump_addr;
+
+  //EX2MEM_
+  wire [31:0]  EX2MEM_perip_addr;    // 读写地址
+  wire         EX2MEM_perip_wen;     // 写使能（高有效）
+  wire [1:0]   EX2MEM_perip_mask;    // 传输宽度：00=byte 01=half 10=word
+  wire [31:0]  EX2MEM_perip_wdata;   // 写数据
+
+  wire[31:0] EX2MEM_reg_data;       // 写寄存器数据
+  wire       EX2MEM_reg_en;         // 是否要写通用寄存器
+  wire[31:0] EX2MEM_reg_addr;   // 写通用寄存器地址
+    
+  wire [2:0]  EX2MEM_funct3;
+
+  //MemCtrl_
+  wire [31:0] MemCtrl_reg_data;
+
+  assign perip_addr = EX2MEM_perip_addr;
+  assign perip_wen = EX2MEM_perip_wen;
+  assign perip_mask = EX2MEM_perip_mask;
+  assign perip_wdata = EX2MEM_perip_wdata;
+
+  //MEM2WB_
+  wire [31:0] MEM2WB_reg_data;       // 写寄存器数据
+  wire        MEM2WB_reg_en;         // 是否要写通用寄存器
+  wire [31:0] MEM2WB_reg_addr;   // 写通用寄存器地址
   
 
 IF  IF_inst (
@@ -115,7 +136,7 @@ ID2EX  ID2EX_inst (
     .clk(cpu_clk),
     .rst(cpu_rst),
     .jump_hold(jump_hold),
-    .stall(stall),
+    .flush(flush),
     .instr_in(IF2ID_instr_out),
     .instr_addr_in(IF2ID_instr_addr_out),
     .op1_in(ID_op1_out),
@@ -147,51 +168,50 @@ EX  EX_inst (
     .perip_wen(EX_perip_wen),
     .perip_mask(EX_perip_mask),
     .perip_wdata(EX_perip_wdata),
-    .perip_rdata(perip_rdata),
-    .reg_data(reg_data),
-    .reg_en(reg_en),
-    .reg_addr(reg_addr),
-    .jump_en(jump_en),
-    .jump_hold(jump_hold),
-    .jump_addr(jump_addr)
+    .reg_data(EX_reg_data),
+    .reg_en(EX_reg_en),
+    .reg_addr(EX_reg_addr),
+    .jump_en(EX_jump_en),
+    .jump_hold(EX_jump_hold),
+    .jump_addr(EX_jump_addr)
   );
 
   EX2MEM  EX2MEM_inst (
     .clk(cpu_clk),
     .rst(cpu_rst),
-    .perip_addr_in(perip_addr_in),
-    .perip_wen_in(perip_wen_in),
-    .perip_mask_in(perip_mask_in),
-    .perip_wdata_in(perip_wdata_in),
-    .reg_data_in(reg_data_in),
-    .reg_en_in(reg_en_in),
-    .reg_addr_in(reg_addr_in),
-    .funct3_in(funct3_in),
-    .perip_addr(perip_addr),
-    .perip_wen(perip_wen),
-    .perip_mask(perip_mask),
-    .perip_wdata(perip_wdata),
-    .reg_data(reg_data),
-    .reg_en(reg_en),
-    .reg_addr(reg_addr),
-    .funct3(funct3)
+    .perip_addr_in(EX_perip_addr_in),
+    .perip_wen_in(EX_perip_wen_in),
+    .perip_mask_in(EX_perip_mask_in),
+    .perip_wdata_in(EX_perip_wdata_in),
+    .reg_data_in(EX_reg_data_in),
+    .reg_en_in(EX_reg_en_in),
+    .reg_addr_in(EX_reg_addr_in),
+    .funct3_in(ID2EX_funct3_out),
+    .perip_addr(EX2MEM_perip_addr),
+    .perip_wen(EX2MEM_perip_wen),
+    .perip_mask(EX2MEM_perip_mask),
+    .perip_wdata(EX2MEM_perip_wdata),
+    .reg_data(EX2MEM_reg_data),
+    .reg_en(EX2MEM_reg_en),
+    .reg_addr(EX2MEM_reg_addr),
+    .funct3(EX2MEM_funct3)
   );
 
   MemCtrl  MemCtrl_inst (
-    .funct3(funct3),
+    .funct3(EX2MEM_funct3),
     .perip_rdata(perip_rdata),
-    .reg_data(reg_data)
+    .reg_data(MemCtrl_reg_data)
   );
 
   MEM2WB  MEM2WB_inst (
     .clk(cpu_clk),
     .rst(cpu_rst),
-    .reg_data_in(reg_data_in),
-    .reg_en_in(reg_en_in),
-    .reg_addr_in(reg_addr_in),
-    .reg_data(reg_data),
-    .reg_en(reg_en),
-    .reg_addr(reg_addr)
+    .reg_data_in(MemCtrl_reg_data),
+    .reg_en_in(EX2MEM_reg_en),
+    .reg_addr_in(EX_reg_addr_in),
+    .reg_data(MEM2WB_reg_data),
+    .reg_en(MEM2WB_reg_en),
+    .reg_addr(MEM2WB_reg_addr)
   );
 
 endmodule

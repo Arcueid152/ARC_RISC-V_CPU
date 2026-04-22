@@ -14,7 +14,6 @@ module EX (
     output reg         perip_wen,     // 写使能（高有效）
     output reg [1:0]   perip_mask,    // 传输宽度：00=byte 01=half 10=word
     output reg [31:0]  perip_wdata,   // 写数据
-    input  wire [31:0]  perip_rdata,    // 读数据
 
     output reg[31:0] reg_data,       // 写寄存器数据
     output reg       reg_en,         // 是否要写通用寄存器
