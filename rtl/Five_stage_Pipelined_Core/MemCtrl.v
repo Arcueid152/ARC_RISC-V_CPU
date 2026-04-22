@@ -3,7 +3,7 @@ module MemCtrl (
     input  wire [2:0]  funct3,
     input  wire EXMemoryRE,
     input   wire [31:0]  perip_rdata,   // 写数据
-    input  reg [31:0] reg_data_in,
+    input  wire [31:0] reg_data_in,
     output  reg [31:0] reg_data
 
 );
@@ -19,7 +19,7 @@ always @( *) begin
             default:   reg_data = perip_rdata;
         endcase
     end
-    else regdata
+    else reg_data = reg_data_in;
 
 end
 endmodule //MemCtrl
