@@ -40,6 +40,7 @@ always @(posedge clk or posedge rst) begin
         reg_en      <= 1'b0;
         reg_addr    <= 5'b0;
         funct3      <= 3'b0;
+        EXMemoryRE_out  <= 1'b0;
     end
     else begin
         perip_addr   <= perip_addr_in;      
@@ -51,6 +52,7 @@ always @(posedge clk or posedge rst) begin
         reg_en      <= reg_en_in;
         reg_addr    <= reg_addr_in;
         funct3      <= funct3_in;
+        EXMemoryRE_out  <= EXMemoryRE;
     end
 end
 
