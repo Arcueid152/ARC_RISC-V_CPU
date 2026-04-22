@@ -134,17 +134,17 @@ ID  ID_inst (
     .opcode(ID_opcode)
   );
 
-  ForwardingUnit  ForwardingUnit_inst (
-    .rs1_addr(ID_rs1_addr),
-    .rs2_addr(ID_rs2_addr),
-    .rs1_data(RF_rs1_data),
-    .rs2_data(RF_rs1_data),
-    .EX_RegWA(EX_reg_addr),
-    .EX_RegWE(EX_reg_en),
-    .EX_RegDA(EX_reg_data),
-    .MEM_RegWA(EX2MEM_reg_addr),
-    .MEM_RegWE(EX2MEM_reg_en),
-    .MEM_RegDA(EX2MEM_reg_data),
+Forwarding  Forwarding_inst (
+    .rs1_addr(rs1_addr),
+    .rs2_addr(rs2_addr),
+    .rs1_data(rs1_data),
+    .rs2_data(rs2_data),
+    .EX_RegWA(EX_RegWA),
+    .EX_RegWE(EX_RegWE),
+    .EX_RegDA(EX_RegDA),
+    .MEM_RegWA(MEM_RegWA),
+    .MEM_RegWE(MEM_RegWE),
+    .MEM_RegDA(MEM_RegDA),
     .rs1_addr_out(rs1_addr_out),
     .rs2_addr_out(rs2_addr_out),
     .rs1_data_out(rs1_data_out),
